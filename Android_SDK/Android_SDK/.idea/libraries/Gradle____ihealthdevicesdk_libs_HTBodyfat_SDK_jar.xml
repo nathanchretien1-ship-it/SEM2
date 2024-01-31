@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: ./ihealthdevicesdk/libs/HTBodyfat_SDK.jar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/ihealthdevicesdk/libs/HTBodyfat_SDK.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

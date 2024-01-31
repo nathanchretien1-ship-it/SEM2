@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: ./ihealthdevicesdk/libs/IDoBLELib-Custom-1.39.0.jar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/ihealthdevicesdk/libs/IDoBLELib-Custom-1.39.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

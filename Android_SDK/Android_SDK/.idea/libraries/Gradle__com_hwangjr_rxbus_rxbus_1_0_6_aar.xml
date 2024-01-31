@@ -1,0 +1,43 @@
+<component name="libraryTable">
+  <library name="Gradle: com.hwangjr.rxbus:rxbus:1.0.6@aar">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/cbc849c4be3a38ae4a1838484f63badd/jetified-rxbus-1.0.6/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/rxbus-1.0.6.aar/0f37f10a31a834e00899c64414bcd776/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/cbc849c4be3a38ae4a1838484f63badd/jetified-rxbus-1.0.6/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/cbc849c4be3a38ae4a1838484f63badd/jetified-rxbus-1.0.6/jars/classes.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/d0bd24a19d35a49c7250897c6868923b/jetified-rxbus-1.0.6/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/d0bd24a19d35a49c7250897c6868923b/jetified-rxbus-1.0.6/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/d0bd24a19d35a49c7250897c6868923b/jetified-rxbus-1.0.6/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/2106cd434ad8dcbbe561534371d8084e/jetified-rxbus-1.0.6/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/2106cd434ad8dcbbe561534371d8084e/jetified-rxbus-1.0.6/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/2106cd434ad8dcbbe561534371d8084e/jetified-rxbus-1.0.6/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/fe031faf600ccf03c256a701b74f67e9/jetified-rxbus-1.0.6/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/fe031faf600ccf03c256a701b74f67e9/jetified-rxbus-1.0.6/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/fe031faf600ccf03c256a701b74f67e9/jetified-rxbus-1.0.6/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/dff29212e007724ccb624200ed24c43f/jetified-rxbus-1.0.6/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/dff29212e007724ccb624200ed24c43f/jetified-rxbus-1.0.6/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/dff29212e007724ccb624200ed24c43f/jetified-rxbus-1.0.6/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/279a30c4a3b2185a614937ed56e738e7/jetified-rxbus-1.0.6/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/279a30c4a3b2185a614937ed56e738e7/jetified-rxbus-1.0.6/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/279a30c4a3b2185a614937ed56e738e7/jetified-rxbus-1.0.6/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/89907320ca496cb21cfa46e772b8d9d6/jetified-rxbus-1.0.6/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/89907320ca496cb21cfa46e772b8d9d6/jetified-rxbus-1.0.6/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/89907320ca496cb21cfa46e772b8d9d6/jetified-rxbus-1.0.6/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/65a7c41c90995cbe65ccf737405cddc6/jetified-rxbus-1.0.6/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/65a7c41c90995cbe65ccf737405cddc6/jetified-rxbus-1.0.6/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/65a7c41c90995cbe65ccf737405cddc6/jetified-rxbus-1.0.6/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f7d29f8531bc38865c459b3f00a0b12c/jetified-rxbus-1.0.6/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f7d29f8531bc38865c459b3f00a0b12c/jetified-rxbus-1.0.6/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f7d29f8531bc38865c459b3f00a0b12c/jetified-rxbus-1.0.6/jars/classes.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/874229cc586baaf820634a6c7caff60c/jetified-rxbus-1.0.6/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/874229cc586baaf820634a6c7caff60c/jetified-rxbus-1.0.6/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/874229cc586baaf820634a6c7caff60c/jetified-rxbus-1.0.6/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.hwangjr.rxbus/rxbus/1.0.6/b01cccb099738a17015614fa2e96c1baf9907fa3/rxbus-1.0.6-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.hwangjr.rxbus/rxbus/1.0.6/24d40f336b72b068baa4a1b2a6e64bca4a27eeb/rxbus-1.0.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

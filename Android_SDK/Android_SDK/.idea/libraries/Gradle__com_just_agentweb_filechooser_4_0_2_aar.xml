@@ -1,0 +1,43 @@
+<component name="libraryTable">
+  <library name="Gradle: com.just.agentweb:filechooser:4.0.2@aar">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b8124cb19cfc8383eae946f8b3e724db/jetified-filechooser-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/filechooser-4.0.2.aar/9a55f4320dee6169430b7bdd1a97fad2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b8124cb19cfc8383eae946f8b3e724db/jetified-filechooser-4.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b8124cb19cfc8383eae946f8b3e724db/jetified-filechooser-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/3ce7425d8f3a4856dc5e2a7b6d7c291a/jetified-filechooser-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/3ce7425d8f3a4856dc5e2a7b6d7c291a/jetified-filechooser-4.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/3ce7425d8f3a4856dc5e2a7b6d7c291a/jetified-filechooser-4.0.2/jars/classes.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/4b7092ee18cfd1d6b6207b8c744cf680/jetified-filechooser-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/4b7092ee18cfd1d6b6207b8c744cf680/jetified-filechooser-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/4b7092ee18cfd1d6b6207b8c744cf680/jetified-filechooser-4.0.2/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/9fe98ce8f0f3aaa3c83e859536eff173/jetified-filechooser-4.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/9fe98ce8f0f3aaa3c83e859536eff173/jetified-filechooser-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/9fe98ce8f0f3aaa3c83e859536eff173/jetified-filechooser-4.0.2/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/435e174960a8e1fccd6d07d1c67d5cc9/jetified-filechooser-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/435e174960a8e1fccd6d07d1c67d5cc9/jetified-filechooser-4.0.2/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/435e174960a8e1fccd6d07d1c67d5cc9/jetified-filechooser-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/3d89fb336be1788e8364cbc557ead25b/jetified-filechooser-4.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/3d89fb336be1788e8364cbc557ead25b/jetified-filechooser-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/3d89fb336be1788e8364cbc557ead25b/jetified-filechooser-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/d1d184921d243a547aec0d5e1b77fa91/jetified-filechooser-4.0.2/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/d1d184921d243a547aec0d5e1b77fa91/jetified-filechooser-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/d1d184921d243a547aec0d5e1b77fa91/jetified-filechooser-4.0.2/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/bc3720ba22b6675be0787c962416a07f/jetified-filechooser-4.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/bc3720ba22b6675be0787c962416a07f/jetified-filechooser-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/bc3720ba22b6675be0787c962416a07f/jetified-filechooser-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/91ba222e0399ff5e649c9d0fe8dd3e7b/jetified-filechooser-4.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/91ba222e0399ff5e649c9d0fe8dd3e7b/jetified-filechooser-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/91ba222e0399ff5e649c9d0fe8dd3e7b/jetified-filechooser-4.0.2/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/4513999af76495c1404a5205f64c6dab/jetified-filechooser-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/4513999af76495c1404a5205f64c6dab/jetified-filechooser-4.0.2/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/4513999af76495c1404a5205f64c6dab/jetified-filechooser-4.0.2/res" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.just.agentweb/filechooser/4.0.2/2f642d72213bb9b044fb9229d4bab38c5f32a0fa/filechooser-4.0.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.just.agentweb/filechooser/4.0.2/32aa50675a34e72883179117b719d6a9dfd42eac/filechooser-4.0.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

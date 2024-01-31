@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_black">#000000</color>
+    <color name="color_black_10">#19000000</color>
+    <color name="color_black_20">#33000000</color>
+    <color name="color_black_30">#4C000000</color>
+    <color name="color_black_40">#66000000</color>
+    <color name="color_black_5">#0C000000</color>
+    <color name="color_black_50">#7F000000</color>
+    <color name="color_black_60">#99000000</color>
+    <color name="color_black_70">#B2000000</color>
+    <color name="color_black_80">#CC000000</color>
+    <color name="color_black_90">#E5000000</color>
+    <color name="color_dialog_confirm_main">#679AFF</color>
+    <color name="color_dialog_edit_cursor">#AAFFFFFF</color>
+    <color name="color_dialog_edit_cursor_black">#3F51B5</color>
+    <color name="color_dialog_edit_hint">#66FFFFFF</color>
+    <color name="color_dialog_edit_hint_black">#66000000</color>
+    <color name="color_dialog_edit_text">#FFFFFFFF</color>
+    <color name="color_dialog_edit_text_black">#FF000000</color>
+    <color name="color_dialog_ios_bg">#8E908F</color>
+    <color name="color_dialog_ios_text_blue">#FF0098EF</color>
+    <color name="color_pop_normal">#f9f9f9</color>
+    <color name="color_pop_press">#d3d3d3</color>
+    <color name="color_red">#FF0000</color>
+    <color name="color_white">#FFFFFF</color>
+    <color name="color_white_10">#19FFFFFF</color>
+    <color name="color_white_20">#33FFFFFF</color>
+    <color name="color_white_30">#4CFFFFFF</color>
+    <color name="color_white_40">#66FFFFFF</color>
+    <color name="color_white_5">#0CFFFFFF</color>
+    <color name="color_white_50">#7FFFFFFF</color>
+    <color name="color_white_60">#99FFFFFF</color>
+    <color name="color_white_70">#B2FFFFFF</color>
+    <color name="color_white_80">#CCFFFFFF</color>
+    <color name="color_white_90">#E5FFFFFF</color>
+    <color name="kprogresshud_default_color">#b1000000</color>
+    <color name="kprogresshud_grey_color">#449E9E9E</color>
+    <string name="app_name">library</string>
+    <string name="btn_text_cancel">Cancel</string>
+    <string name="btn_text_confirm">Confirm</string>
+    <string name="download_cancel">取消下载</string>
+    <string name="download_completed">下载完成</string>
+    <string name="download_error">下载失败</string>
+    <string name="downloading">正在下载…</string>
+    <string name="permission_disable_error">权限被禁用，请从应用信息->权限中打开相应的权限，否则部分功能将不可使用。</string>
+    <string name="permission_disable_error_no_selectalbum">读写外部存储的权限被禁用，相册功能无法使用</string>
+    <string name="permission_disable_error_sd_card">读写外部存储的权限被禁用，请从应用信息->权限中打开相应的权限，否则该功能将不可使用。</string>
+    <string name="permission_disable_error_sd_card_app_update">读写外部存储的权限被禁用，APP升级的功能将无法使用。请在应用信息->权限中，打开存储空间的权限。</string>
+    <string name="photo_download_fail">下载图片失败</string>
+    <string name="photo_download_save_to_tip">已下载图片到：</string>
+    <string name="photo_download_tip">是否下载图片?</string>
+    <string name="photo_error_no_memory_card">没有检测到内存卡</string>
+    <string name="photo_error_select_photo">选择图片错误</string>
+    <string name="photo_error_take_picture">拍照错误</string>
+    <string name="photo_error_take_video">录制错误</string>
+    <string name="photo_upload_successful">图片上传成功</string>
+    <style name="ActionSheetDialogAnimation" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@anim/anim_view_show</item>
+        <item name="android:windowExitAnimation">@anim/anim_view_dismiss</item>
+    </style>
+    <style name="ActionSheetDialogStyle" parent="@android:style/Theme.Dialog">
+
+        <!-- 背景透明 -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <!-- 浮于Activity之上 -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 边框 -->
+        <item name="android:windowFrame">@null</item>
+        <!-- Dialog以外的区域模糊效果 -->
+        <item name="android:backgroundDimEnabled">true</item>
+        <!-- 无标题 -->
+        <item name="android:windowNoTitle">true</item>
+        <!-- 半透明 -->
+        <item name="android:windowIsTranslucent">true</item>
+        <!-- Dialog进入及退出动画 -->
+        <item name="android:windowAnimationStyle">@style/ActionSheetDialogAnimation</item>
+    </style>
+    <style name="EditViewWithDel">
+        <item name="android:layout_height">40dp</item>
+        <item name="android:textSize">13dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:textCursorDrawable">@drawable/xml_edit_text_cursor</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/color_dialog_edit_text</item>
+        <item name="android:textColorHint">@color/color_dialog_edit_hint</item>
+    </style>
+    <style name="EditViewWithDelBlack" parent="EditViewWithDel">
+
+        <item name="android:minWidth">30dp</item>
+        <item name="android:textCursorDrawable">@drawable/xml_edit_text_cursor_black</item>
+        <item name="android:textColor">@color/color_dialog_edit_text_black</item>
+        <item name="android:textColorHint">@color/color_dialog_edit_hint_black</item>
+    </style>
+    <style name="ListViewDefaultStyle" parent="android:Widget.ListView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:scrollbars">none</item>
+        <item name="android:listSelector">@android:color/transparent</item>
+        <item name="android:divider">@android:color/transparent</item>
+        <item name="android:dividerHeight">0dp</item>
+    </style>
+    <style name="ScrollViewDefaultStyle" parent="android:Widget.ScrollView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:scrollbars">none</item>
+    </style>
+    <style name="defaultDialog" parent="@android:style/Theme.Dialog">
+        //Dialog的windowFrame框为无
+        <item name="android:windowFrame">@null</item>
+        //是否浮现在activity之上
+        <item name="android:windowIsFloating">true</item>
+        //是否半透明
+        <item name="android:windowIsTranslucent">true</item>
+        //是否显示title
+        <item name="android:windowNoTitle">true</item>
+        //设置dialog的背景
+        <item name="android:background">@android:color/transparent</item>
+        //显示区域背景是否透明
+        <item name="android:windowBackground">@android:color/transparent</item>
+        //就是用来控制灰度的值，当为1时，界面除了我们的dialog内容是高亮显示的，dialog以外的区域是黑色的，完全看不到其他内容，系统的默认值是0.5
+        <item name="android:backgroundDimAmount">0.5</item>
+        //显示区域以外是否使用黑色半透明背景
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+</resources>

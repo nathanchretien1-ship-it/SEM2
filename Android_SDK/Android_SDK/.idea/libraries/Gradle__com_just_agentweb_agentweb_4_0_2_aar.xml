@@ -1,0 +1,42 @@
+<component name="libraryTable">
+  <library name="Gradle: com.just.agentweb:agentweb:4.0.2@aar">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/67534e5ceade037276cefe2d55fbdc56/jetified-agentweb-4.0.2/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/67534e5ceade037276cefe2d55fbdc56/jetified-agentweb-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/67534e5ceade037276cefe2d55fbdc56/jetified-agentweb-4.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/719d6dd296ed716215aee2f1d3287340/jetified-agentweb-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/719d6dd296ed716215aee2f1d3287340/jetified-agentweb-4.0.2/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/719d6dd296ed716215aee2f1d3287340/jetified-agentweb-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/acf16fef73baf0620cc9bde1ee0a606d/jetified-agentweb-4.0.2/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/acf16fef73baf0620cc9bde1ee0a606d/jetified-agentweb-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/acf16fef73baf0620cc9bde1ee0a606d/jetified-agentweb-4.0.2/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/e1ff15fc2bd7ec8fa1e7e636c2f735bb/jetified-agentweb-4.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/e1ff15fc2bd7ec8fa1e7e636c2f735bb/jetified-agentweb-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/e1ff15fc2bd7ec8fa1e7e636c2f735bb/jetified-agentweb-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/1ce8476b31eb1af94ebdd5779f469058/jetified-agentweb-4.0.2/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/1ce8476b31eb1af94ebdd5779f469058/jetified-agentweb-4.0.2/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/1ce8476b31eb1af94ebdd5779f469058/jetified-agentweb-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/17e0cae0dae8764ab7758d331b7b508c/jetified-agentweb-4.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/17e0cae0dae8764ab7758d331b7b508c/jetified-agentweb-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/17e0cae0dae8764ab7758d331b7b508c/jetified-agentweb-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/dc5c223d58c77a438841d9c82f11df02/jetified-agentweb-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/dc5c223d58c77a438841d9c82f11df02/jetified-agentweb-4.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/dc5c223d58c77a438841d9c82f11df02/jetified-agentweb-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/339ebb7a237cb44e4327ec60ff960145/jetified-agentweb-4.0.2/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/339ebb7a237cb44e4327ec60ff960145/jetified-agentweb-4.0.2/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/339ebb7a237cb44e4327ec60ff960145/jetified-agentweb-4.0.2/jars/classes.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/0bbf1cdbf67cf43f7dd69993bba3eaf8/jetified-agentweb-4.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/0bbf1cdbf67cf43f7dd69993bba3eaf8/jetified-agentweb-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/0bbf1cdbf67cf43f7dd69993bba3eaf8/jetified-agentweb-4.0.2/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/0a7bd234ab5d15cb5fef47fd545e0141/jetified-agentweb-4.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/0a7bd234ab5d15cb5fef47fd545e0141/jetified-agentweb-4.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/0a7bd234ab5d15cb5fef47fd545e0141/jetified-agentweb-4.0.2/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.just.agentweb/agentweb/4.0.2/61acc475bc7c8079f8a1394f30e8fe817c0f01e1/agentweb-4.0.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.just.agentweb/agentweb/4.0.2/e346132b6a541392651f622e8b1f99898b4ebc07/agentweb-4.0.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
