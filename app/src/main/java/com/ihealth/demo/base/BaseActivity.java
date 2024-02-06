@@ -22,8 +22,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.ihealth.demo.R;
 
-import butterknife.ButterKnife;
-
 /**
  * <li>BaseActivity</li>
  * <li>All Activity Basic</li>
@@ -34,15 +32,11 @@ public abstract class BaseActivity extends AppCompatActivity {
     private static final String TAG = "BaseActivity";
     public Context mContext;
     private RelativeLayout mRlMain;
-    /** Log */
-    public TextView mTvLogMessage;
-    public LinearLayout mLogLayout;
-    public ScrollView mScrollViewLog;
     /** Animation */
     private TranslateAnimation mShowAction;
     private TranslateAnimation mHiddenAction;
     /** Global Log Information */
-    private String mLogInformation = "";
+    private final String mLogInformation = "";
     /** Device Name */
     public String mDeviceName = "";
     /** Device Mac */
@@ -83,8 +77,6 @@ public abstract class BaseActivity extends AppCompatActivity {
             layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             mRlMain.addView(layout);
         }
-
-        ButterKnife.bind(this);
 
         WindowManager manager = this.getWindowManager();
         DisplayMetrics outMetrics = new DisplayMetrics();

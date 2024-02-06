@@ -42,13 +42,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".business.LaunchActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="0c46ff811fa040a77d7baf74057d2b42829d6309" />
