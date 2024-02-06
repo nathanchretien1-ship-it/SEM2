@@ -24,6 +24,9 @@ public class BaseApplication extends Application {
         iHealthDevicesManager.getInstance().init(this, Log.VERBOSE, Log.VERBOSE);
 
 
+        /*
+         * Authenticate with iHealth servers to unlock iHealth SDK for sensors
+         */
         try {
             InputStream is = getAssets().open("com_demo_sdk_android.pem");
             int size = is.available();
