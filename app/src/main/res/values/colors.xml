@@ -8,7 +8,7 @@
     <color name="colorBackground">#F6F6F6</color>
     <color name="colorTextBlue">#679AFF</color>
     <color name="colorTextBluePress">#3366FF</color>
-    <color name="colorTextBlueEnable">@color/color_white_30</color>
+    <color name="colorTextBlueEnable">#4CFFFFFF</color>
 
 
 </resources>

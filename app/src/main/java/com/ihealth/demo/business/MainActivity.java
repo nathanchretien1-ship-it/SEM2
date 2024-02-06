@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import com.ec.easylibrary.utils.ToastUtils;
 import com.ihealth.communication.manager.iHealthDevicesManager;
 import com.ihealth.communication.utils.Log;
 import com.ihealth.demo.R;
@@ -37,7 +36,6 @@ import io.reactivex.functions.Consumer;
 public class MainActivity extends AppCompatActivity{
     @BindView(R.id.flContent)
     FrameLayout mFlContent;
-    @BindView(R.id.tvTitle)
     TextView mTvTitle;
 
     private Context mContext;
@@ -118,13 +116,7 @@ public class MainActivity extends AppCompatActivity{
                 .subscribe(new Consumer<Permission>() {
                     @Override
                     public void accept(Permission permission) {
-                        if (permission.granted) {
 
-                        } else if (permission.shouldShowRequestPermissionRationale) {
-                            ToastUtils.showToast(MainActivity.this, "请打开相关权限，否则会影响功能的使用");
-                        } else {
-                            ToastUtils.showToast(MainActivity.this, "请打开相关权限，否则会影响功能的使用");
-                        }
                     }
                 });
     }

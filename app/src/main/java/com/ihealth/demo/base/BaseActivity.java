@@ -20,9 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.ec.easylibrary.AppManager;
-import com.ec.easylibrary.dialog.confirm.ConfirmDialog;
-import com.ec.easylibrary.utils.DateUtils;
 import com.ihealth.demo.R;
 
 import butterknife.ButterKnife;
@@ -46,8 +43,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     private TranslateAnimation mHiddenAction;
     /** Global Log Information */
     private String mLogInformation = "";
-    /** Confirm Dialog */
-    private ConfirmDialog mConfirmDialog;
     /** Device Name */
     public String mDeviceName = "";
     /** Device Mac */
@@ -90,7 +85,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
         ButterKnife.bind(this);
-        AppManager.instance().addActivity(this);
 
         WindowManager manager = this.getWindowManager();
         DisplayMetrics outMetrics = new DisplayMetrics();
@@ -116,10 +110,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         mHiddenAction.setDuration(500);
     }
 
-    public void showConfirmDialog(Context context, String title, String messgae, ConfirmDialog.OnClickLisenter lisenter) {
-        mConfirmDialog = new ConfirmDialog(context, mScreenWidth - 100, mScreenHeight / 3, title, messgae, lisenter);
-        mConfirmDialog.show();
-    }
 
 
 
@@ -145,14 +135,9 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     public void addLogInfo(String infomation) {
         if (infomation != null && !infomation.isEmpty()) {
-            String infor = DateUtils.getNow("yyyy-MM-dd HH:mm:ss.SSS") + ": " + infomation + " \n";
-            mLogInformation += infor;
-            if (mTvLogMessage != null) {
-                mTvLogMessage.append(infor);
-                mScrollViewLog.fullScroll(ScrollView.FOCUS_DOWN);
             }
         }
-    }
+
 
     /**
      * 清空日志
@@ -198,7 +183,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        AppManager.instance().finishActivity(this);
     }
 
 

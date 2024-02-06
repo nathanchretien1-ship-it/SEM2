@@ -18,8 +18,6 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.ec.easylibrary.dialog.confirm.ConfirmDialog;
-import com.ec.easylibrary.utils.ToastUtils;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.ihealth.demo.R;
@@ -56,7 +54,6 @@ public abstract class FunctionFoldActivity extends BaseActivity {
     public void initBaseActivity() {
         super.initBaseActivity();
 
-        mTvTitle = findViewById(R.id.tvTitle);
 
         mImgStatus.setImageDrawable(mContext.getResources().getDrawable(R.drawable.activity_main_icon_status_2_ok));
         mTvTitle.setText(mContext.getString(R.string.main_title_functions));

@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import com.ec.easylibrary.AppManager;
 import com.ihealth.communication.manager.iHealthDevicesManager;
 
 
@@ -54,6 +53,5 @@ public class BaseApplication extends Application {
      * <li>Some operations to exit login, such as clearing some user data, etc.</li>
      */
     public void logOut() {
-        AppManager.instance().finishAllActivity();
     }
 }
