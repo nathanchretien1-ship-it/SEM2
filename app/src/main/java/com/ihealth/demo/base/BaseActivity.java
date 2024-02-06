@@ -9,15 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ihealth.demo.R;
@@ -25,35 +20,55 @@ import com.ihealth.demo.R;
 /**
  * <li>BaseActivity</li>
  * <li>All Activity Basic</li>
- *
+ * <p>
  * Created by wj on 2018/11/20
  */
 public abstract class BaseActivity extends AppCompatActivity {
     private static final String TAG = "BaseActivity";
     public Context mContext;
     private RelativeLayout mRlMain;
-    /** Animation */
+    /**
+     * Animation
+     */
     private TranslateAnimation mShowAction;
     private TranslateAnimation mHiddenAction;
-    /** Global Log Information */
+    /**
+     * Global Log Information
+     */
     private final String mLogInformation = "";
-    /** Device Name */
+    /**
+     * Device Name
+     */
     public String mDeviceName = "";
-    /** Device Mac */
+    /**
+     * Device Mac
+     */
     public String mDeviceMac = "";
-    /** Global Screen Width Default 1080 px*/
+    /**
+     * Global Screen Width Default 1080 px
+     */
     public int mScreenWidth = 1080;
-    /** Global Screen Height Default 1920 px*/
+    /**
+     * Global Screen Height Default 1920 px
+     */
     public int mScreenHeight = 1920;
-    /** Handle Message What Code*/
+    /**
+     * Handle Message What Code
+     */
     public static final int HANDLER_MESSAGE = 101;
-    /** Importing Layout  Abstraction Method*/
+
+    /**
+     * Importing Layout  Abstraction Method
+     */
     public abstract int contentViewID();
-    /** Init  Abstraction Method*/
+
+    /**
+     * Init  Abstraction Method
+     */
     public abstract void initView();
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);

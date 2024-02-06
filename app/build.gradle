@@ -34,12 +34,6 @@ android {
 }
 
 dependencies {
-    //    compile fileTree(include: ['*.jar'], dir: 'libs')
-    //jing 20170413 解决直接在手机上run的时候，默认使用的是debug的jar，导致无log输出的问题
-    //    releaseCompile project(path: ':ihealthdevicesdk', configuration: 'release')
-    //    debugCompile project(path: ':ihealthdevicesdk', configuration: 'debug')
-
-//    implementation project(':ihealthdevicesdk')
     api files('libs/iHealthSDK_2.9.6.jar')
     implementation 'androidx.appcompat:appcompat:1.6.1'
 
