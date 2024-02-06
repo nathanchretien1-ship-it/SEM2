@@ -56,37 +56,7 @@
         <activity
             android:name=".business.MainActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".business.device.BG1"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".business.device.BPM1"
-            android:screenOrientation="portrait" />
-        <activity android:name=".business.device.BG5" />
-        <activity android:name=".business.device.BP3L" />
-        <activity android:name=".business.device.BP5" />
-        <activity android:name=".business.device.BP5S" />
-        <activity android:name=".business.device.BP7S" />
-        <activity android:name=".business.device.BP550BT" />
-        <activity android:name=".business.device.HS6" />
-        <activity android:name=".business.device.PO3" />
-        <activity android:name=".business.device.BTM" />
-        <activity android:name=".business.device.BG5S" />
-        <activity android:name=".business.device.KD926" />
-        <activity android:name=".business.device.HS2" />
-        <activity android:name=".business.device.HS3" />
-        <activity android:name=".business.device.HS2S" />
-        <activity android:name=".business.device.HS4" />
-        <activity android:name=".business.device.AM3" />
-        <activity android:name=".business.device.AM3S" />
-        <activity android:name=".business.device.AM4" />
-        <activity android:name=".business.device.AM5" />
-        <activity android:name=".business.device.TS28B" />
-        <activity android:name=".business.device.NT13B" />
-        <activity android:name=".business.device.ECG3" />
-        <activity android:name=".business.device.ECGUSB" />
-        <activity android:name=".business.device.PT3SBT" />
-        <activity android:name=".business.device.PO1" />
+
 
         <service
             android:name="com.ido.ble.bluetooth.DeviceConnectService"
