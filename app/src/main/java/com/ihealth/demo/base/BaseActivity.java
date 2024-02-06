@@ -82,9 +82,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void initBaseActivity() {
         mContext = BaseApplication.instance().getApplicationContext();
         mRlMain = findViewById(R.id.rlMain);
-        mTvLogMessage = findViewById(R.id.tvLogMessage);
-        mLogLayout = findViewById(R.id.logLayout);
-        mScrollViewLog = findViewById(R.id.ScrollViewLog);
 
         if (contentViewID() != 0) {
             View layout = LayoutInflater.from(mContext).inflate(contentViewID(), null);

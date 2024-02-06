@@ -50,19 +50,13 @@ public abstract class FunctionFoldActivity extends BaseActivity {
 
     @Override
     public void setBaseActivityLayout() {
-        setContentView(R.layout.activity_fold);
     }
     
     @Override
     public void initBaseActivity() {
         super.initBaseActivity();
 
-        mToolbarLayout = findViewById(R.id.toolbarLayout);
-        mAppBar = findViewById(R.id.appBar);
-        mImgStatus = findViewById(R.id.imgStatus);
-        mTvDeviceInfo = findViewById(R.id.tvDeviceInfo);
         mTvTitle = findViewById(R.id.tvTitle);
-        mLogLayout = findViewById(R.id.logLayout);
 
         mImgStatus.setImageDrawable(mContext.getResources().getDrawable(R.drawable.activity_main_icon_status_2_ok));
         mTvTitle.setText(mContext.getString(R.string.main_title_functions));

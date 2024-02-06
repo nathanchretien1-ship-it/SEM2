@@ -39,10 +39,6 @@ public class MainActivity extends AppCompatActivity{
     FrameLayout mFlContent;
     @BindView(R.id.tvTitle)
     TextView mTvTitle;
-    @BindView(R.id.tvDeviceInfo)
-    TextView mTvDeviceInfo;
-    @BindView(R.id.imgStatus)
-    ImageView mImgStatus;
 
     private Context mContext;
     private RxPermissions permissions;
