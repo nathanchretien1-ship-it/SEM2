@@ -12,14 +12,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
 
 import com.ihealth.communication.manager.iHealthDevicesManager;
-import com.ihealth.communication.utils.Log;
 import com.ihealth.demo.R;
 import com.ihealth.demo.base.BaseApplication;
-import com.ihealth.demo.model.DeviceCharacteristic;
 import com.tbruyelle.rxpermissions2.Permission;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
@@ -62,8 +58,6 @@ public class MainActivity extends AppCompatActivity{
     //Setting this time can change the response time when you exit the application.
     private final static long TIMEOUT_EXIT = 2000;
 
-    //Support device list
-    public static ArrayList<DeviceCharacteristic> deviceStructList = new ArrayList<>();
 
     public int contentViewID() {
         return R.layout.activity_main;
@@ -79,28 +73,6 @@ public class MainActivity extends AppCompatActivity{
     private void init() {
         mContext = this;
         checkPermission();
-        initDeviceInfo();
-    }
-
-    /**
-     * 初始化所有支持设备信息
-     * Initialize all support device information
-     */
-    private void initDeviceInfo() {
-        Field[] fields = iHealthDevicesManager.class.getFields();
-        for (Field field : fields) {
-            String fieldName = field.getName();
-            if (fieldName.contains("DISCOVERY_")) {
-                DeviceCharacteristic struct = new DeviceCharacteristic();
-                struct.setDeviceName(fieldName.substring(10));
-                try {
-                    struct.setDeviceType(field.getLong(null));
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-                deviceStructList.add(struct);
-            }
-        }
     }
 
     /**
