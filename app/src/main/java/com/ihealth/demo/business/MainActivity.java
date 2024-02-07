@@ -10,8 +10,6 @@ import com.ihealth.communication.manager.DiscoveryTypeEnum;
 import com.ihealth.communication.manager.iHealthDevicesCallback;
 import com.ihealth.communication.manager.iHealthDevicesManager;
 
-import java.util.Map;
-
 /**
  * MainActivity
  */
@@ -36,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
         iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.PO3);
 
-
+        //iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.NT13B);
     }
 
     @Override
@@ -46,13 +44,13 @@ public class MainActivity extends AppCompatActivity {
         iHealthDevicesManager.getInstance().disconnectAllDevices(true);
     }
 
-    private static class MyCallback extends iHealthDevicesCallback{
+    private static class MyCallback extends iHealthDevicesCallback {
 
         @Override
         public void onScanDevice(String mac, String deviceType, int rssi) {
             super.onScanDevice(mac, deviceType, rssi);
 
-            Log.d(TAG,"onScan1 -> mac : " + mac + ", deviceType : " + deviceType + ", rssi : " + rssi);
+            Log.d(TAG, "onScan1 -> mac : " + mac + ", deviceType : " + deviceType + ", rssi : " + rssi);
 
             iHealthDevicesManager.getInstance().connectDevice("", mac, deviceType);
         }
@@ -75,21 +73,29 @@ public class MainActivity extends AppCompatActivity {
         public void onDeviceConnectionStateChange(String mac, String deviceType, int status, int errorID) {
             super.onDeviceConnectionStateChange(mac, deviceType, status, errorID);
 
-            switch (status){
-                case iHealthDevicesManager.DEVICE_STATE_CONNECTING :
+            switch (status) {
+                case iHealthDevicesManager.DEVICE_STATE_CONNECTING:
                     Log.d(TAG, "onDeviceConnectionStateChange1 : CONNECTING");
                     break;
-                case iHealthDevicesManager.DEVICE_STATE_CONNECTED :
+                case iHealthDevicesManager.DEVICE_STATE_CONNECTED:
                     Log.d(TAG, "onDeviceConnectionStateChange1 : CONNECTED");
-                    iHealthDevicesManager.getInstance().getPo3Control(mac).startMeasure();
+                    switch (deviceType) {
+                        case "PO3":
+                            iHealthDevicesManager.getInstance().getPo3Control(mac).startMeasure();
+                            break;
+                        case "NT13B":
+                            iHealthDevicesManager.getInstance().getNT13BControl(mac).getMeasurement();
+                            break;
+
+                    }
                     break;
-                case iHealthDevicesManager.DEVICE_STATE_DISCONNECTED :
+                case iHealthDevicesManager.DEVICE_STATE_DISCONNECTED:
                     Log.d(TAG, "onDeviceConnectionStateChange1 : DISCONNECTED");
                     break;
-                case iHealthDevicesManager.DEVICE_STATE_CONNECTIONFAIL :
+                case iHealthDevicesManager.DEVICE_STATE_CONNECTIONFAIL:
                     Log.d(TAG, "onDeviceConnectionStateChange1 : CONNECTFAIL");
                     break;
-                case iHealthDevicesManager.DEVICE_STATE_RECONNECTING :
+                case iHealthDevicesManager.DEVICE_STATE_RECONNECTING:
                     Log.d(TAG, "onDeviceConnectionStateChange1 : RECONNECTING");
                     break;
 
