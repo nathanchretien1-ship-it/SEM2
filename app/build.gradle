@@ -1,18 +1,17 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    compileSdkVersion 33
+    namespace 'com.ihealth.demo'
+    compileSdk 33
+
     defaultConfig {
         applicationId "com.ihealth.demo"
-        minSdkVersion 21
-        targetSdkVersion 33
+        minSdk 21
+        targetSdk 33
         versionCode 5
         versionName "1.2.1"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
-        ndk {
-            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-        }
     }
     buildTypes {
         release {
@@ -30,18 +29,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    namespace 'com.ihealth.demo'
 }
 
 dependencies {
     api files('libs/iHealthSDK_2.9.6.jar')
     implementation 'androidx.appcompat:appcompat:1.6.1'
-
-    implementation 'com.alibaba:fastjson:1.2.48'
-    implementation 'com.squareup.okhttp3:okhttp:4.8.0'
-    implementation 'com.squareup.okio:okio:2.7.0'
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'org.greenrobot:greendao:3.2.2'
-    implementation 'no.nordicsemi.android:dfu:1.9.2'
-
 }
