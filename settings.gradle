@@ -1,2 +1,1 @@
-include ':app', ':baselibrary', ':ihealthdevicesdk'
-project(':baselibrary').projectDir = new File('easylibrary')
+include ':app', ':ihealthdevicesdk'
