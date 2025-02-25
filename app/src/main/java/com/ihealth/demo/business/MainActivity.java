@@ -3,6 +3,7 @@ package com.ihealth.demo.business;
 import android.Manifest;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -11,8 +12,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.ihealth.communication.manager.DiscoveryTypeEnum;
 import com.ihealth.communication.manager.iHealthDevicesCallback;
 import com.ihealth.communication.manager.iHealthDevicesManager;
+import com.ihealth.demo.R;
 import com.tbruyelle.rxpermissions2.Permission;
 import com.tbruyelle.rxpermissions2.RxPermissions;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import io.reactivex.functions.Consumer;
 
@@ -27,16 +32,29 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         checkPermission();
+        findViewById(R.id.test_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                initScanAndConnect();
+            }
+        });
+    }
 
-        iHealthDevicesCallback ihdc = new MyCallback();
-        int callbackId = iHealthDevicesManager.getInstance().registerClientCallback(ihdc);
+    private void initScanAndConnect() {
+        if (init()) {
+
+            iHealthDevicesCallback ihdc = new MyCallback();
+            int callbackId = iHealthDevicesManager.getInstance().registerClientCallback(ihdc);
 
 
-        iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.PO3);
+            iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.PO3);
 
-        //iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.NT13B);
+            //iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.NT13B);
+        }
+
     }
 
     @Override
@@ -135,5 +153,33 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+
+    private boolean init() {
+        boolean isPass = false;
+
+        /*
+         * Initializes the iHealth devices manager. Can discovery available iHealth devices nearby
+         * and connect these devices through iHealthDevicesManager.
+         */
+        iHealthDevicesManager.getInstance().init(getApplication(), Log.VERBOSE, Log.VERBOSE);
+
+        /*
+         * Authenticate with iHealth servers to unlock iHealth SDK for sensors
+         */
+        try {
+            InputStream is = getAssets().open("com_demo_sdk_android.pem");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            isPass = iHealthDevicesManager.getInstance().sdkAuthWithLicense(buffer);
+            Log.d("SEM2", "isPass: " + isPass);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return isPass;
     }
 }
