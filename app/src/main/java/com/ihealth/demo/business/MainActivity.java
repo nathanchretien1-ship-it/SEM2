@@ -1,7 +1,9 @@
 package com.ihealth.demo.business;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.ihealth.communication.manager.DiscoveryTypeEnum;
 import com.ihealth.communication.manager.iHealthDevicesCallback;
 import com.ihealth.communication.manager.iHealthDevicesManager;
+import com.tbruyelle.rxpermissions2.Permission;
+import com.tbruyelle.rxpermissions2.RxPermissions;
+
+import io.reactivex.functions.Consumer;
 
 /**
  * MainActivity
@@ -16,17 +22,13 @@ import com.ihealth.communication.manager.iHealthDevicesManager;
 public class MainActivity extends AppCompatActivity {
 
     private final static String TAG = "SEM2";
+    private RxPermissions permissions;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        /*
-         * Initializes the iHealth devices manager. Can discovery available iHealth devices nearby
-         * and connect these devices through iHealthDevicesManager.
-         */
-        iHealthDevicesManager.getInstance().init(getApplication(), Log.VERBOSE, Log.VERBOSE);
+        checkPermission();
 
         iHealthDevicesCallback ihdc = new MyCallback();
         int callbackId = iHealthDevicesManager.getInstance().registerClientCallback(ihdc);
@@ -115,5 +117,23 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onDeviceNotify : action=" + action + ", message=" + message);
         }
 
+    }
+
+    private void checkPermission() {
+        permissions = new RxPermissions(this);
+        permissions.requestEach(Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION)
+                .subscribe(new Consumer<Permission>() {
+                    @Override
+                    public void accept(Permission permission) {
+                        if (permission.granted) {
+
+                        } else if (permission.shouldShowRequestPermissionRationale) {
+                            Toast.makeText(MainActivity.this, "Veuillez activer les permissions correspondantes, sinon cela affectera l'utilisation des fonctionnalités.", Toast.LENGTH_SHORT);
+                        } else {
+                            Toast.makeText(MainActivity.this, "Veuillez activer les permissions correspondantes, sinon cela affectera l'utilisation des fonctionnalités.", Toast.LENGTH_SHORT);
+                        }
+                    }
+                });
     }
 }
