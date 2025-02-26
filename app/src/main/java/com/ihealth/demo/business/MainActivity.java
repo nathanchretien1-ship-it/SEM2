@@ -140,7 +140,11 @@ public class MainActivity extends AppCompatActivity {
     private void checkPermission() {
         permissions = new RxPermissions(this);
         permissions.requestEach(Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION)
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.BLUETOOTH_SCAN,
+                        Manifest.permission.BLUETOOTH_ADVERTISE,
+                        Manifest.permission.BLUETOOTH_CONNECT,
+                        Manifest.permission.BLUETOOTH)
                 .subscribe(new Consumer<Permission>() {
                     @Override
                     public void accept(Permission permission) {
