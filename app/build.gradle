@@ -40,7 +40,7 @@ dependencies {
     //    debugCompile project(path: ':ihealthdevicesdk', configuration: 'debug')
 
 //    implementation project(':ihealthdevicesdk')
-    api files('libs/iHealthSDK_2.9.6.jar')
+    api files('libs/iHealthSDK_2.13.0.jar')
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.9'
 
