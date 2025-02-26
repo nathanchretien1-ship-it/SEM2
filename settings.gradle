@@ -1,1 +1,1 @@
-include ':app', ':ihealthdevicesdk'
+include ':app'

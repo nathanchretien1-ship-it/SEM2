@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace 'com.ihealth.demo'
-    compileSdk 35
+    namespace='com.ihealth.demo'
+    compileSdk=35
     defaultConfig {
         applicationId "com.ihealth.demo"
         minSdkVersion 29
@@ -10,7 +10,7 @@ android {
         versionCode 5
         versionName "1.2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
+        multiDexEnabled=true
         ndk {
             abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
         }
