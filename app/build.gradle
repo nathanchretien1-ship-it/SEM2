@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace 'com.ihealth.demo'
     compileSdkVersion 29
     buildToolsVersion '29.0.3'
     defaultConfig {
