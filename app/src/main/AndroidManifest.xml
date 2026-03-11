@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" package="com.ihealth.demo">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ihealth.demo">
 
-    <!--<uses-permission android:name="android.permission.BLUETOOTH" />-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-
-
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.BLUETOOTH"
-        android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-sdk tools:overrideLibrary="no.nordicsemi.android.dfu" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -22,9 +23,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar.Application"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config">
 
-        <!-- exported:要求必须为false，为true则会报安全异常。grantUriPermissions:true，表示授予 URI 临时访问权限。 -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.demo.sdk.fileprovider"
@@ -35,10 +36,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="0c46ff811fa040a77d7baf74057d2b42829d6309" />
-
         <activity
             android:name=".business.MainActivity"
             android:exported="true"
@@ -46,21 +43,12 @@
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-
-        <service
-            android:name="com.ido.ble.bluetooth.DeviceConnectService"
-            android:exported="false" />
-
-        <service
-            android:name="com.ido.ble.dfu.DFUService"
-            android:enabled="true"
-            android:exported="false" />
+        <service android:name="com.ido.ble.bluetooth.DeviceConnectService" android:exported="false" />
+        <service android:name="com.ido.ble.dfu.DFUService" android:enabled="true" android:exported="false" />
 
     </application>
-
 </manifest>
