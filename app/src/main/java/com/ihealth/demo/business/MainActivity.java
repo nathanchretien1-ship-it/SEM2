@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonRegister;
     private Button buttonTest;
     private ImageView buttonLogout;
+    private Button buttonRefreshDevices;
 
     private BottomNavigationView bottomNavigationView;
 
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         buttonRegister = findViewById(R.id.button_register);
         buttonTest = findViewById(R.id.test_button);
         buttonLogout = findViewById(R.id.btn_logout);
+        buttonRefreshDevices = findViewById(R.id.button_refresh_devices);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -174,7 +176,14 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Inscription en cours...", Toast.LENGTH_SHORT).show();
             registerToApi(editName.getText().toString(), editEmail.getText().toString(), editPassword.getText().toString());
         });
-        buttonTest.setOnClickListener(view -> startAppLogic());
+        buttonTest.setOnClickListener(view -> {
+            Toast.makeText(this, "Scan lancé", Toast.LENGTH_SHORT).show();
+            startAppLogic();
+        });
+        buttonRefreshDevices.setOnClickListener(view -> {
+            Toast.makeText(this, "Actualisation de la connexion...", Toast.LENGTH_SHORT).show();
+            startAppLogic();
+        });
     }
 
     private void hideKeyboard() {
@@ -506,8 +515,8 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if (MainActivity.this.tvSpo2 != null) MainActivity.this.tvSpo2.setText("SpO2: " + finalSpo2 + " %");
-                                if (MainActivity.this.tvBpm != null) MainActivity.this.tvBpm.setText("BPM: " + finalBpm + " bpm");
+                                if (MainActivity.this.tvSpo2 != null) MainActivity.this.tvSpo2.setText(finalSpo2 + " %");
+                                if (MainActivity.this.tvBpm != null) MainActivity.this.tvBpm.setText(finalBpm + " bpm");
                             }
                         });
                     }
@@ -527,7 +536,7 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if (MainActivity.this.tvTemperature != null) MainActivity.this.tvTemperature.setText("Température: " + String.format(Locale.getDefault(), "%.1f", finalTemp) + " °C");
+                                if (MainActivity.this.tvTemperature != null) MainActivity.this.tvTemperature.setText(String.format(Locale.getDefault(), "%.1f", finalTemp) + " °C");
                             }
                         });
                     }
