@@ -105,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("email", email);
                 payload.put("password", password);
 
+                Log.d("SANTE_APP_API", "Register request payload: " + payload.toString());
+
                 DataOutputStream os = new DataOutputStream(conn.getOutputStream());
                 os.write(payload.toString().getBytes("UTF-8"));
                 os.flush();
@@ -122,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
                     in.close();
 
                     String jsonString = extractJson(response.toString());
+                    Log.d("SANTE_APP_API", "Register response: " + jsonString);
+
                     JSONObject jsonResponse = new JSONObject(jsonString);
                     boolean success = jsonResponse.optBoolean("success", false);
                     String message = jsonResponse.optString("message", "Réponse inattendue");
@@ -170,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("email", email);
                 payload.put("password", password);
 
+                Log.d("SANTE_APP_API", "Login request payload: " + payload.toString());
+
                 DataOutputStream os = new DataOutputStream(conn.getOutputStream());
                 os.write(payload.toString().getBytes("UTF-8"));
                 os.flush();
@@ -187,6 +193,8 @@ public class MainActivity extends AppCompatActivity {
                     in.close();
 
                     String jsonString = extractJson(response.toString());
+                    Log.d("SANTE_APP_API", "Login response: " + jsonString);
+
                     JSONObject jsonResponse = new JSONObject(jsonString);
                     boolean success = jsonResponse.optBoolean("success", false);
                     if (success) {
@@ -308,12 +316,29 @@ public class MainActivity extends AppCompatActivity {
                 if (spo2 != null) payload.put("spo2", spo2);
                 if (temperature != null) payload.put("temperature", temperature);
 
+                Log.d("SANTE_APP_API", "Measurements request payload: " + payload.toString());
+
                 DataOutputStream os = new DataOutputStream(conn.getOutputStream());
                 os.write(payload.toString().getBytes("UTF-8"));
                 os.flush();
                 os.close();
 
-                Log.d(TAG, "Réponse Serveur (HTTPS) : " + conn.getResponseCode());
+                int responseCode = conn.getResponseCode();
+                InputStream in = (responseCode >= 200 && responseCode < 300) ? conn.getInputStream() : conn.getErrorStream();
+                if (in != null) {
+                    StringBuilder response = new StringBuilder();
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = in.read(buffer)) != -1) {
+                        response.append(new String(buffer, 0, bytesRead));
+                    }
+                    in.close();
+
+                    String jsonString = extractJson(response.toString());
+                    Log.d("SANTE_APP_API", "Measurements response: " + jsonString);
+                } else {
+                    Log.d("SANTE_APP_API", "Measurements response code (no body): " + responseCode);
+                }
             } catch (Exception e) {
                 Log.e(TAG, "Échec de l'envoi HTTPS : " + e.getMessage());
             } finally {
