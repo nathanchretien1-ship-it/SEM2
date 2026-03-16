@@ -40,6 +40,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import android.os.Handler;
+import android.os.Looper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -82,6 +84,19 @@ public class MainActivity extends AppCompatActivity {
 
     // Device Tracking
     private Map<String, String> deviceStates = new HashMap<>();
+
+    // Discovery Handler
+    private Handler discoveryHandler = new Handler(Looper.getMainLooper());
+    private Runnable discoveryRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (apiToken != null) {
+                startAppLogic();
+                // Schedule next discovery in 30 seconds
+                discoveryHandler.postDelayed(this, 30000);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -142,19 +157,32 @@ public class MainActivity extends AppCompatActivity {
             measurementLayout.setVisibility(View.VISIBLE);
             bottomNavigationView.setVisibility(View.VISIBLE);
             buttonLogout.setVisibility(View.VISIBLE);
+            startDiscoveryLoop();
         }
 
         buttonLogin.setOnClickListener(view -> {
+            hideKeyboard();
             buttonLogin.setEnabled(false);
             Toast.makeText(this, "Connexion en cours...", Toast.LENGTH_SHORT).show();
             loginToApi(editEmail.getText().toString(), editPassword.getText().toString());
         });
         buttonRegister.setOnClickListener(view -> {
+            hideKeyboard();
             buttonRegister.setEnabled(false);
             Toast.makeText(this, "Inscription en cours...", Toast.LENGTH_SHORT).show();
             registerToApi(editName.getText().toString(), editEmail.getText().toString(), editPassword.getText().toString());
         });
         buttonTest.setOnClickListener(view -> startAppLogic());
+    }
+
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
     }
 
     private String extractJson(String response) {
@@ -293,6 +321,7 @@ public class MainActivity extends AppCompatActivity {
                             measurementLayout.setVisibility(View.VISIBLE);
                             bottomNavigationView.setVisibility(View.VISIBLE);
                             buttonLogout.setVisibility(View.VISIBLE);
+                            startDiscoveryLoop();
                         });
                     } else {
                         String message = jsonResponse.optString("message", "Erreur de connexion");
@@ -323,6 +352,7 @@ public class MainActivity extends AppCompatActivity {
     private void logout() {
         sessionManager.clearSession();
         apiToken = null;
+        stopDiscoveryLoop();
         loginLayout.setVisibility(View.VISIBLE);
         measurementLayout.setVisibility(View.GONE);
         historyLayout.setVisibility(View.GONE);
@@ -334,6 +364,21 @@ public class MainActivity extends AppCompatActivity {
         editEmail.setText("");
         editPassword.setText("");
         editName.setText("");
+    }
+
+    private void startDiscoveryLoop() {
+        discoveryHandler.removeCallbacks(discoveryRunnable);
+        discoveryHandler.post(discoveryRunnable);
+    }
+
+    private void stopDiscoveryLoop() {
+        discoveryHandler.removeCallbacks(discoveryRunnable);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopDiscoveryLoop();
     }
 
     private void showMeasurements() {
@@ -391,9 +436,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isSdkInitialized = false;
+
     private void startAppLogic() {
-        if (initSDK()) {
-            iHealthDevicesManager.getInstance().registerClientCallback(new MyCallback());
+        if (!isSdkInitialized) {
+            isSdkInitialized = initSDK();
+            if (isSdkInitialized) {
+                iHealthDevicesManager.getInstance().registerClientCallback(new MyCallback());
+            }
+        }
+
+        if (isSdkInitialized) {
             // Recherche active pour Oxymètre (PO3) et Thermomètre (NT13B)
             iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.PO3);
             iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.NT13B);
@@ -429,26 +482,51 @@ public class MainActivity extends AppCompatActivity {
         public void onDeviceNotify(String mac, String deviceType, String action, String message) {
             try {
                 JSONObject json = new JSONObject(message);
-                if (action.contains("result_po3")) {
-                    int spo2 = json.getInt("spo2");
-                    int bpm = json.getInt("heartrate");
-                    MainActivity.this.envoyerAuServeur(deviceType, bpm, spo2, null);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (MainActivity.this.tvSpo2 != null) MainActivity.this.tvSpo2.setText("SpO2: " + spo2 + " %");
-                            if (MainActivity.this.tvBpm != null) MainActivity.this.tvBpm.setText("BPM: " + bpm + " bpm");
-                        }
-                    });
-                } else if (action.contains("result_nt13b")) {
-                    double temp = json.getDouble("result");
-                    MainActivity.this.envoyerAuServeur(deviceType, null, null, temp);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (MainActivity.this.tvTemperature != null) MainActivity.this.tvTemperature.setText("Température: " + temp + " °C");
-                        }
-                    });
+                if (action.contains("ACTION_PR_PO3") || action.contains("result_po3")) {
+                    // iHealth SDK documentation mentions keys like bloodoxygen or spo2, and heartrate or bpm
+                    int spo2 = 0;
+                    if (json.has("bloodoxygen")) {
+                        spo2 = json.getInt("bloodoxygen");
+                    } else if (json.has("spo2")) {
+                        spo2 = json.getInt("spo2");
+                    }
+                    int bpm = 0;
+                    if (json.has("heartrate")) {
+                        bpm = json.getInt("heartrate");
+                    } else if (json.has("bpm")) {
+                        bpm = json.getInt("bpm");
+                    }
+
+                    if (spo2 > 0 && bpm > 0) {
+                        int finalSpo2 = spo2;
+                        int finalBpm = bpm;
+                        MainActivity.this.envoyerAuServeur(deviceType, finalBpm, finalSpo2, null);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (MainActivity.this.tvSpo2 != null) MainActivity.this.tvSpo2.setText("SpO2: " + finalSpo2 + " %");
+                                if (MainActivity.this.tvBpm != null) MainActivity.this.tvBpm.setText("BPM: " + finalBpm + " bpm");
+                            }
+                        });
+                    }
+                } else if (action.contains("ACTION_MEASUREMENT_RESULT") || action.contains("result_nt13b")) {
+                    double temp = 0;
+                    if (json.has("result")) {
+                        temp = json.getDouble("result");
+                    } else if (json.has("temperature")) {
+                        temp = json.getDouble("temperature");
+                    }
+
+                    if (temp > 0) {
+                        double finalTemp = temp;
+                        MainActivity.this.envoyerAuServeur(deviceType, null, null, finalTemp);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (MainActivity.this.tvTemperature != null) MainActivity.this.tvTemperature.setText("Température: " + finalTemp + " °C");
+                            }
+                        });
+                    }
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Erreur de traitement des données", e);
@@ -484,7 +562,7 @@ public class MainActivity extends AppCompatActivity {
                 conn.setDoOutput(true);
 
                 JSONObject payload = new JSONObject();
-                payload.put("deviceType", deviceType);
+                payload.put("device_type", deviceType);
                 if (bpm != null) payload.put("bpm", bpm);
                 if (spo2 != null) payload.put("spo2", spo2);
                 if (temperature != null) payload.put("temperature", temperature);
