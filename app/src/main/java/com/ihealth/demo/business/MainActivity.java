@@ -35,9 +35,11 @@ public class MainActivity extends AppCompatActivity {
     // UI Elements
     private LinearLayout loginLayout;
     private LinearLayout measurementLayout;
+    private EditText editName;
     private EditText editEmail;
     private EditText editPassword;
     private Button buttonLogin;
+    private Button buttonRegister;
     private Button buttonTest;
     TextView tvSpo2;
     TextView tvBpm;
@@ -50,9 +52,11 @@ public class MainActivity extends AppCompatActivity {
 
         loginLayout = findViewById(R.id.login_layout);
         measurementLayout = findViewById(R.id.measurement_layout);
+        editName = findViewById(R.id.edit_name);
         editEmail = findViewById(R.id.edit_email);
         editPassword = findViewById(R.id.edit_password);
         buttonLogin = findViewById(R.id.button_login);
+        buttonRegister = findViewById(R.id.button_register);
         buttonTest = findViewById(R.id.test_button);
         tvSpo2 = findViewById(R.id.tv_spo2);
         tvBpm = findViewById(R.id.tv_bpm);
@@ -61,7 +65,64 @@ public class MainActivity extends AppCompatActivity {
         checkPermission();
 
         buttonLogin.setOnClickListener(view -> loginToApi(editEmail.getText().toString(), editPassword.getText().toString()));
+        buttonRegister.setOnClickListener(view -> registerToApi(editName.getText().toString(), editEmail.getText().toString(), editPassword.getText().toString()));
         buttonTest.setOnClickListener(view -> startAppLogic());
+    }
+
+    private void registerToApi(String name, String email, String password) {
+        new Thread(() -> {
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(URL_AUTH);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                conn.setConnectTimeout(10000);
+                conn.setDoOutput(true);
+
+                JSONObject payload = new JSONObject();
+                payload.put("action", "register");
+                payload.put("name", name);
+                payload.put("email", email);
+                payload.put("password", password);
+
+                DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+                os.writeBytes(payload.toString());
+                os.flush();
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                InputStream in = (responseCode >= 200 && responseCode < 300) ? conn.getInputStream() : conn.getErrorStream();
+                if (in != null) {
+                    StringBuilder response = new StringBuilder();
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = in.read(buffer)) != -1) {
+                        response.append(new String(buffer, 0, bytesRead));
+                    }
+                    in.close();
+
+                    JSONObject jsonResponse = new JSONObject(response.toString());
+                    boolean success = jsonResponse.optBoolean("success", false);
+                    String message = jsonResponse.optString("message", "");
+
+                    runOnUiThread(() -> {
+                        Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                        if (success) {
+                            // Si l'inscription réussit, on peut éventuellement vider le champ nom pour se connecter ensuite
+                            editName.setText("");
+                        }
+                    });
+                } else {
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Erreur serveur : " + responseCode, Toast.LENGTH_SHORT).show());
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Erreur d'inscription à l'API Auth", e);
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Erreur réseau", Toast.LENGTH_SHORT).show());
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
     }
 
     private void loginToApi(String email, String password) {
