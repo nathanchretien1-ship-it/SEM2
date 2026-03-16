@@ -49,10 +49,10 @@ public class MainActivity extends AppCompatActivity {
     private String apiToken = null;
 
     // UI Elements
-    private LinearLayout loginLayout;
-    private LinearLayout measurementLayout;
-    private LinearLayout historyLayout;
-    private LinearLayout devicesLayout;
+    private View loginLayout;
+    private View measurementLayout;
+    private View historyLayout;
+    private View devicesLayout;
     private LinearLayout devicesListContainer;
 
     private EditText editName;
