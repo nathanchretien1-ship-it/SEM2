@@ -77,6 +77,16 @@ public class MainActivity extends AppCompatActivity {
         buttonTest.setOnClickListener(view -> startAppLogic());
     }
 
+    private String extractJson(String response) {
+        if (response == null) return "{}";
+        int start = response.indexOf("{");
+        int end = response.lastIndexOf("}");
+        if (start != -1 && end != -1 && end >= start) {
+            return response.substring(start, end + 1);
+        }
+        return "{}";
+    }
+
     private void registerToApi(String name, String email, String password) {
         new Thread(() -> {
             HttpURLConnection conn = null;
@@ -111,7 +121,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     in.close();
 
-                    JSONObject jsonResponse = new JSONObject(response.toString());
+                    String jsonString = extractJson(response.toString());
+                    JSONObject jsonResponse = new JSONObject(jsonString);
                     boolean success = jsonResponse.optBoolean("success", false);
                     String message = jsonResponse.optString("message", "Réponse inattendue");
 
@@ -175,7 +186,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     in.close();
 
-                    JSONObject jsonResponse = new JSONObject(response.toString());
+                    String jsonString = extractJson(response.toString());
+                    JSONObject jsonResponse = new JSONObject(jsonString);
                     boolean success = jsonResponse.optBoolean("success", false);
                     if (success) {
                         apiToken = jsonResponse.getString("token");
