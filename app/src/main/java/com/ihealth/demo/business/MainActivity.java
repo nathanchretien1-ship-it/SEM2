@@ -501,7 +501,8 @@ public class MainActivity extends AppCompatActivity {
                     if (spo2 > 0 && bpm > 0) {
                         int finalSpo2 = spo2;
                         int finalBpm = bpm;
-                        MainActivity.this.envoyerAuServeur(deviceType, finalBpm, finalSpo2, null);
+                        String sendDeviceType = deviceType.equals("PO3") ? "oxymetre" : deviceType;
+                        MainActivity.this.envoyerAuServeur(sendDeviceType, finalBpm, finalSpo2, null);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -519,12 +520,14 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if (temp > 0) {
-                        double finalTemp = temp;
-                        MainActivity.this.envoyerAuServeur(deviceType, null, null, finalTemp);
+                        // Arrondir à 1 chiffre après la virgule
+                        double finalTemp = Math.round(temp * 10.0) / 10.0;
+                        String sendDeviceType = deviceType.equals("NT13B") ? "thermometre" : deviceType;
+                        MainActivity.this.envoyerAuServeur(sendDeviceType, null, null, finalTemp);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if (MainActivity.this.tvTemperature != null) MainActivity.this.tvTemperature.setText("Température: " + finalTemp + " °C");
+                                if (MainActivity.this.tvTemperature != null) MainActivity.this.tvTemperature.setText("Température: " + String.format(Locale.getDefault(), "%.1f", finalTemp) + " °C");
                             }
                         });
                     }
