@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#679AFF</color>
-    <color name="colorPrimaryDark">#3366FF</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#0D47A1</color>
+    <color name="colorPrimaryDark">#002171</color>
+    <color name="colorAccent">#29B6F6</color>
 
-
+    <color name="medicalBlue">#1976D2</color>
+    <color name="medicalLightBlue">#E3F2FD</color>
+    <color name="medicalGrey">#F5F5F5</color>
+    <color name="darkGrey">#424242</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="colorError">#D32F2F</color>
+    <color name="colorSuccess">#388E3C</color>
 </resources>
