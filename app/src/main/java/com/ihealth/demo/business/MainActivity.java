@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -101,9 +104,15 @@ public class MainActivity extends AppCompatActivity {
 
                 JSONObject payload = new JSONObject();
                 payload.put("action", "register");
-                payload.put("name", name);
+                payload.put("nameUsers", name);
                 payload.put("email", email);
-                payload.put("password", password);
+                payload.put("passwordUser", password);
+
+                // Champs requis avec des valeurs par défaut pour correspondre à la BDD
+                payload.put("sexe", "Other");
+                payload.put("birthDate", "2000-01-01");
+                payload.put("weight", 70.0);
+                payload.put("height", 170.0);
 
                 Log.d("SANTE_APP_API", "Register request payload: " + payload.toString());
 
@@ -172,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject payload = new JSONObject();
                 payload.put("action", "login");
                 payload.put("email", email);
-                payload.put("password", password);
+                payload.put("passwordUser", password);
 
                 Log.d("SANTE_APP_API", "Login request payload: " + payload.toString());
 
@@ -311,10 +320,18 @@ public class MainActivity extends AppCompatActivity {
                 conn.setDoOutput(true);
 
                 JSONObject payload = new JSONObject();
-                payload.put("device_type", deviceType);
+                payload.put("deviceType", deviceType);
                 if (bpm != null) payload.put("bpm", bpm);
                 if (spo2 != null) payload.put("spo2", spo2);
                 if (temperature != null) payload.put("temperature", temperature);
+
+                // Add measureDate and measureTime based on the current device time
+                Date now = new Date();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+
+                payload.put("measureDate", dateFormat.format(now));
+                payload.put("measureTime", timeFormat.format(now));
 
                 Log.d("SANTE_APP_API", "Measurements request payload: " + payload.toString());
 
