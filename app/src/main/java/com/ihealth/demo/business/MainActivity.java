@@ -6,13 +6,21 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.ihealth.communication.manager.DiscoveryTypeEnum;
+import com.ihealth.demo.business.data.AppDatabase;
+import com.ihealth.demo.business.data.MeasurementDao;
+import com.ihealth.demo.business.data.MeasurementEntity;
+import com.ihealth.demo.business.data.SessionManager;
 import com.ihealth.communication.manager.iHealthDevicesCallback;
 import com.ihealth.communication.manager.iHealthDevicesManager;
 import com.ihealth.demo.R;
@@ -27,8 +35,11 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
     // UI Elements
     private LinearLayout loginLayout;
     private LinearLayout measurementLayout;
+    private LinearLayout historyLayout;
     private LinearLayout devicesLayout;
-    private LinearLayout navLayout;
     private LinearLayout devicesListContainer;
 
     private EditText editName;
@@ -50,9 +61,20 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonLogin;
     private Button buttonRegister;
     private Button buttonTest;
+    private ImageView buttonLogout;
 
-    private Button navMeasurements;
-    private Button navDevices;
+    private BottomNavigationView bottomNavigationView;
+
+    // History RecyclerView
+    private RecyclerView recyclerHistory;
+    private HistoryAdapter historyAdapter;
+
+    // Local Data
+    private SessionManager sessionManager;
+    private MeasurementDao measurementDao;
+
+    // Executor for Database operations
+    private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
 
     TextView tvSpo2;
     TextView tvBpm;
@@ -66,10 +88,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Init Local Data
+        sessionManager = new SessionManager(this);
+        measurementDao = AppDatabase.getDatabase(this).measurementDao();
+
         loginLayout = findViewById(R.id.login_layout);
         measurementLayout = findViewById(R.id.measurement_layout);
+        historyLayout = findViewById(R.id.history_layout);
         devicesLayout = findViewById(R.id.devices_layout);
-        navLayout = findViewById(R.id.nav_layout);
         devicesListContainer = findViewById(R.id.devices_list_container);
 
         editName = findViewById(R.id.edit_name);
@@ -78,9 +104,14 @@ public class MainActivity extends AppCompatActivity {
         buttonLogin = findViewById(R.id.button_login);
         buttonRegister = findViewById(R.id.button_register);
         buttonTest = findViewById(R.id.test_button);
+        buttonLogout = findViewById(R.id.btn_logout);
 
-        navMeasurements = findViewById(R.id.nav_measurements);
-        navDevices = findViewById(R.id.nav_devices);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        recyclerHistory = findViewById(R.id.recycler_history);
+        historyAdapter = new HistoryAdapter();
+        recyclerHistory.setAdapter(historyAdapter);
+        recyclerHistory.setLayoutManager(new LinearLayoutManager(this));
 
         tvSpo2 = findViewById(R.id.tv_spo2);
         tvBpm = findViewById(R.id.tv_bpm);
@@ -88,8 +119,30 @@ public class MainActivity extends AppCompatActivity {
 
         checkPermission();
 
-        navMeasurements.setOnClickListener(view -> showMeasurements());
-        navDevices.setOnClickListener(view -> showDevices());
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_measurements) {
+                showMeasurements();
+                return true;
+            } else if (id == R.id.nav_history) {
+                showHistory();
+                return true;
+            } else if (id == R.id.nav_devices) {
+                showDevices();
+                return true;
+            }
+            return false;
+        });
+
+        buttonLogout.setOnClickListener(v -> logout());
+
+        if (sessionManager.isLoggedIn()) {
+            apiToken = sessionManager.getToken();
+            loginLayout.setVisibility(View.GONE);
+            measurementLayout.setVisibility(View.VISIBLE);
+            bottomNavigationView.setVisibility(View.VISIBLE);
+            buttonLogout.setVisibility(View.VISIBLE);
+        }
 
         buttonLogin.setOnClickListener(view -> {
             buttonLogin.setEnabled(false);
@@ -232,13 +285,14 @@ public class MainActivity extends AppCompatActivity {
                     boolean success = jsonResponse.optBoolean("success", false);
                     if (success) {
                         apiToken = jsonResponse.getString("token");
+                        sessionManager.saveSession(apiToken, email);
                         runOnUiThread(() -> {
                             buttonLogin.setEnabled(true);
                             Toast.makeText(MainActivity.this, "Connexion réussie", Toast.LENGTH_SHORT).show();
                             loginLayout.setVisibility(View.GONE);
                             measurementLayout.setVisibility(View.VISIBLE);
-                            navLayout.setVisibility(View.VISIBLE);
-                            buttonTest.setVisibility(View.VISIBLE);
+                            bottomNavigationView.setVisibility(View.VISIBLE);
+                            buttonLogout.setVisibility(View.VISIBLE);
                         });
                     } else {
                         String message = jsonResponse.optString("message", "Erreur de connexion");
@@ -266,15 +320,47 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
+    private void logout() {
+        sessionManager.clearSession();
+        apiToken = null;
+        loginLayout.setVisibility(View.VISIBLE);
+        measurementLayout.setVisibility(View.GONE);
+        historyLayout.setVisibility(View.GONE);
+        devicesLayout.setVisibility(View.GONE);
+        bottomNavigationView.setVisibility(View.GONE);
+        buttonLogout.setVisibility(View.GONE);
+
+        // Reset inputs
+        editEmail.setText("");
+        editPassword.setText("");
+        editName.setText("");
+    }
+
     private void showMeasurements() {
         measurementLayout.setVisibility(View.VISIBLE);
+        historyLayout.setVisibility(View.GONE);
         devicesLayout.setVisibility(View.GONE);
+    }
+
+    private void showHistory() {
+        measurementLayout.setVisibility(View.GONE);
+        historyLayout.setVisibility(View.VISIBLE);
+        devicesLayout.setVisibility(View.GONE);
+        loadHistoryFromDatabase();
     }
 
     private void showDevices() {
         measurementLayout.setVisibility(View.GONE);
+        historyLayout.setVisibility(View.GONE);
         devicesLayout.setVisibility(View.VISIBLE);
         refreshDevicesList();
+    }
+
+    private void loadHistoryFromDatabase() {
+        databaseExecutor.execute(() -> {
+            List<MeasurementEntity> measurements = measurementDao.getAllMeasurements();
+            runOnUiThread(() -> historyAdapter.setMeasurements(measurements));
+        });
     }
 
     private void updateDeviceState(String mac, String name, String state) {
@@ -371,6 +457,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void envoyerAuServeur(String deviceType, Integer bpm, Integer spo2, Double temperature) {
+        long timestamp = System.currentTimeMillis();
+        // Save to local database
+        databaseExecutor.execute(() -> {
+            MeasurementEntity entity = new MeasurementEntity(deviceType, bpm, spo2, temperature, timestamp);
+            measurementDao.insert(entity);
+            // Delete records older than 7 days (7 * 24 * 60 * 60 * 1000 ms = 604800000 ms)
+            measurementDao.deleteOlderThan(timestamp - 604800000L);
+        });
+
         if (apiToken == null) {
             Log.e(TAG, "Pas de token, envoi impossible");
             return;

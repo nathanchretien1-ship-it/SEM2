@@ -1,180 +1,383 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    android:padding="16dp">
+    android:background="@color/medicalGrey">
 
-    <!-- Login Section -->
-    <LinearLayout
-        android:id="@+id/login_layout"
+    <!-- Top Bar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="vertical"
-        android:visibility="visible">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/medicalBlue"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="SantéApp"
+        app:titleTextColor="@color/white">
 
-        <TextView
+        <ImageView
+            android:id="@+id/btn_logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Connexion / Inscription"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp"
-            android:layout_gravity="center_horizontal" />
+            android:src="@drawable/ic_logout"
+            android:layout_gravity="end"
+            android:padding="16dp"
+            android:visibility="gone"
+            app:tint="@color/white"/>
+    </androidx.appcompat.widget.Toolbar>
 
-        <EditText
-            android:id="@+id/edit_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nom (Inscription)"
-            android:inputType="textPersonName"
-            android:layout_marginBottom="8dp" />
-
-        <EditText
-            android:id="@+id/edit_email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:layout_marginBottom="8dp" />
-
-        <EditText
-            android:id="@+id/edit_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Mot de passe"
-            android:inputType="textPassword"
-            android:layout_marginBottom="16dp" />
-
-        <Button
-            android:id="@+id/button_login"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Se connecter" />
-
-        <Button
-            android:id="@+id/button_register"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="S'inscrire" />
-    </LinearLayout>
-
-    <!-- Measurement Section -->
-    <LinearLayout
-        android:id="@+id/measurement_layout"
+    <!-- Main Content Container (Not a ScrollView to allow RecyclerView to work) -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/test_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="32dp"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mesures Récentes"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp"
-            android:layout_gravity="center_horizontal" />
-
-        <TextView
-            android:id="@+id/tv_spo2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="SpO2: -- %"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:id="@+id/tv_bpm"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="BPM: -- bpm"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:id="@+id/tv_temperature"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Température: -- °C"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp" />
-
-    </LinearLayout>
-
-    <!-- Device List Section -->
-    <LinearLayout
-        android:id="@+id/devices_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/test_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="32dp"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Appareils Bluetooth"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp"
-            android:layout_gravity="center_horizontal" />
-
+        <!-- ===================== LOGIN SECTION ===================== -->
         <ScrollView
+            android:id="@+id/login_layout"
             android:layout_width="match_parent"
-            android:layout_height="150dp">
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="visible">
 
             <LinearLayout
-                android:id="@+id/devices_list_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:gravity="center">
 
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/ic_heart"
+                    app:tint="@color/medicalBlue"
+                    android:layout_marginBottom="24dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bienvenue"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/medicalBlue"
+                    android:layout_marginBottom="32dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nom (Inscription uniquement)"
+                        android:inputType="textPersonName" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Email"
+                        android:inputType="textEmailAddress" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="32dp"
+                    app:passwordToggleEnabled="true"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Mot de passe"
+                        android:inputType="textPassword" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_login"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="Se Connecter"
+                    android:textSize="18sp"
+                    app:cornerRadius="8dp"
+                    android:layout_marginBottom="16dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_register"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="Créer un compte"
+                    android:textSize="18sp"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
         </ScrollView>
 
-    </LinearLayout>
+        <!-- ===================== MEASUREMENT SECTION ===================== -->
+        <ScrollView
+            android:id="@+id/measurement_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
 
-    <Button
-        android:id="@+id/test_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/nav_layout"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:padding="10dp"
-        android:text="Lancer le Scan (PO3/NT13B)"
-        android:visibility="gone" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="top|center_horizontal">
 
-    <!-- Navigation Section -->
-    <LinearLayout
-        android:id="@+id/nav_layout"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mesures en Direct"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="24dp" />
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2"
+                    android:rowCount="2"
+                    android:alignmentMode="alignMargins"
+                    android:columnOrderPreserved="false"
+                    android:useDefaultMargins="true">
+
+                    <!-- SpO2 Card -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_rowWeight="1"
+                        android:layout_columnWeight="1"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="8dp"
+                        app:cardBackgroundColor="@color/white"
+                        android:layout_margin="8dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="24dp">
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:src="@drawable/ic_blood"
+                                android:layout_marginBottom="16dp"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="SpO2"
+                                android:textSize="16sp"
+                                android:textColor="@color/darkGrey"/>
+                            <TextView
+                                android:id="@+id/tv_spo2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="-- %"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/medicalBlue"
+                                android:layout_marginTop="8dp"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- BPM Card -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_rowWeight="1"
+                        android:layout_columnWeight="1"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="8dp"
+                        app:cardBackgroundColor="@color/white"
+                        android:layout_margin="8dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="24dp">
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:src="@drawable/ic_heart"
+                                android:layout_marginBottom="16dp"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="BPM"
+                                android:textSize="16sp"
+                                android:textColor="@color/darkGrey"/>
+                            <TextView
+                                android:id="@+id/tv_bpm"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="-- bpm"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/medicalBlue"
+                                android:layout_marginTop="8dp"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Temp Card -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_rowWeight="1"
+                        android:layout_columnWeight="1"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="8dp"
+                        app:cardBackgroundColor="@color/white"
+                        android:layout_margin="8dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="24dp">
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:src="@drawable/ic_temp"
+                                android:layout_marginBottom="16dp"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Température"
+                                android:textSize="16sp"
+                                android:textColor="@color/darkGrey"/>
+                            <TextView
+                                android:id="@+id/tv_temperature"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="-- °C"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/medicalBlue"
+                                android:layout_marginTop="8dp"/>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+                </GridLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/test_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="Lancer le Scan (PO3/NT13B)"
+                    android:textSize="16sp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginHorizontal="16dp"
+                    app:cornerRadius="8dp" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ===================== HISTORY SECTION ===================== -->
+        <LinearLayout
+            android:id="@+id/history_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Historique des Mesures"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_gravity="center_horizontal" />
+
+            <!-- Now this RecyclerView will fill the space correctly without OOM -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_history"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false" />
+        </LinearLayout>
+
+        <!-- ===================== DEVICES SECTION ===================== -->
+        <ScrollView
+            android:id="@+id/devices_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Appareils Connectés"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_gravity="center_horizontal" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    android:layout_margin="8dp">
+
+                    <LinearLayout
+                        android:id="@+id/devices_list_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp" />
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </ScrollView>
+
+    </FrameLayout>
+
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:visibility="gone">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        android:background="@color/white"
+        app:itemIconTint="@color/medicalBlue"
+        app:itemTextColor="@color/medicalBlue"
+        android:visibility="gone"/>
 
-        <Button
-            android:id="@+id/nav_measurements"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Mesures" />
-
-        <Button
-            android:id="@+id/nav_devices"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Appareils" />
-
-    </LinearLayout>
-
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
