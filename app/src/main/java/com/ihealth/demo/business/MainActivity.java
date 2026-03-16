@@ -26,7 +26,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,15 +40,26 @@ public class MainActivity extends AppCompatActivity {
     // UI Elements
     private LinearLayout loginLayout;
     private LinearLayout measurementLayout;
+    private LinearLayout devicesLayout;
+    private LinearLayout navLayout;
+    private LinearLayout devicesListContainer;
+
     private EditText editName;
     private EditText editEmail;
     private EditText editPassword;
     private Button buttonLogin;
     private Button buttonRegister;
     private Button buttonTest;
+
+    private Button navMeasurements;
+    private Button navDevices;
+
     TextView tvSpo2;
     TextView tvBpm;
     TextView tvTemperature;
+
+    // Device Tracking
+    private Map<String, String> deviceStates = new HashMap<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,17 +68,28 @@ public class MainActivity extends AppCompatActivity {
 
         loginLayout = findViewById(R.id.login_layout);
         measurementLayout = findViewById(R.id.measurement_layout);
+        devicesLayout = findViewById(R.id.devices_layout);
+        navLayout = findViewById(R.id.nav_layout);
+        devicesListContainer = findViewById(R.id.devices_list_container);
+
         editName = findViewById(R.id.edit_name);
         editEmail = findViewById(R.id.edit_email);
         editPassword = findViewById(R.id.edit_password);
         buttonLogin = findViewById(R.id.button_login);
         buttonRegister = findViewById(R.id.button_register);
         buttonTest = findViewById(R.id.test_button);
+
+        navMeasurements = findViewById(R.id.nav_measurements);
+        navDevices = findViewById(R.id.nav_devices);
+
         tvSpo2 = findViewById(R.id.tv_spo2);
         tvBpm = findViewById(R.id.tv_bpm);
         tvTemperature = findViewById(R.id.tv_temperature);
 
         checkPermission();
+
+        navMeasurements.setOnClickListener(view -> showMeasurements());
+        navDevices.setOnClickListener(view -> showDevices());
 
         buttonLogin.setOnClickListener(view -> {
             buttonLogin.setEnabled(false);
@@ -213,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "Connexion réussie", Toast.LENGTH_SHORT).show();
                             loginLayout.setVisibility(View.GONE);
                             measurementLayout.setVisibility(View.VISIBLE);
+                            navLayout.setVisibility(View.VISIBLE);
                             buttonTest.setVisibility(View.VISIBLE);
                         });
                     } else {
@@ -241,6 +266,45 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
+    private void showMeasurements() {
+        measurementLayout.setVisibility(View.VISIBLE);
+        devicesLayout.setVisibility(View.GONE);
+    }
+
+    private void showDevices() {
+        measurementLayout.setVisibility(View.GONE);
+        devicesLayout.setVisibility(View.VISIBLE);
+        refreshDevicesList();
+    }
+
+    private void updateDeviceState(String mac, String name, String state) {
+        runOnUiThread(() -> {
+            deviceStates.put(mac, name + " - " + state);
+            refreshDevicesList();
+        });
+    }
+
+    private void refreshDevicesList() {
+        if (devicesListContainer == null) return;
+        devicesListContainer.removeAllViews();
+
+        if (deviceStates.isEmpty()) {
+            TextView emptyView = new TextView(this);
+            emptyView.setText("Aucun appareil trouvé.");
+            emptyView.setTextSize(16);
+            devicesListContainer.addView(emptyView);
+            return;
+        }
+
+        for (Map.Entry<String, String> entry : deviceStates.entrySet()) {
+            TextView deviceView = new TextView(this);
+            deviceView.setText(entry.getValue());
+            deviceView.setTextSize(18);
+            deviceView.setPadding(0, 8, 0, 8);
+            devicesListContainer.addView(deviceView);
+        }
+    }
+
     private void startAppLogic() {
         if (initSDK()) {
             iHealthDevicesManager.getInstance().registerClientCallback(new MyCallback());
@@ -255,6 +319,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onScanDevice(String mac, String deviceType, int rssi) {
             Log.d(TAG, "Dispositif trouvé : " + deviceType + " | MAC: " + mac);
+            updateDeviceState(mac, deviceType, "Trouvé");
             iHealthDevicesManager.getInstance().connectDevice("", mac, deviceType);
         }
 
@@ -262,11 +327,15 @@ public class MainActivity extends AppCompatActivity {
         public void onDeviceConnectionStateChange(String mac, String deviceType, int status, int errorID) {
             if (status == iHealthDevicesManager.DEVICE_STATE_CONNECTED) {
                 Log.i(TAG, "Connecté avec succès à : " + deviceType);
+                updateDeviceState(mac, deviceType, "Connecté");
                 if (deviceType.equals("PO3")) {
                     iHealthDevicesManager.getInstance().getPo3Control(mac).startMeasure();
                 } else if (deviceType.equals("NT13B")) {
                     iHealthDevicesManager.getInstance().getNT13BControl(mac).getMeasurement();
                 }
+            } else if (status == iHealthDevicesManager.DEVICE_STATE_DISCONNECTED) {
+                Log.i(TAG, "Déconnecté de : " + deviceType);
+                updateDeviceState(mac, deviceType, "Déconnecté");
             }
         }
 
