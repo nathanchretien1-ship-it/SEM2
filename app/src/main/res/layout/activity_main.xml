@@ -363,6 +363,17 @@
                         android:orientation="vertical"
                         android:padding="16dp" />
                 </androidx.cardview.widget.CardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_refresh_devices"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="Actualiser la connexion"
+                    android:textSize="16sp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginHorizontal="8dp"
+                    app:cornerRadius="8dp" />
+
             </LinearLayout>
         </ScrollView>
 
