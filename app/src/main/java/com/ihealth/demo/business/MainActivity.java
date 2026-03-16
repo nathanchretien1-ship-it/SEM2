@@ -23,6 +23,8 @@ import com.ihealth.demo.business.data.MeasurementEntity;
 import com.ihealth.demo.business.data.SessionManager;
 import com.ihealth.communication.manager.iHealthDevicesCallback;
 import com.ihealth.communication.manager.iHealthDevicesManager;
+import com.ihealth.communication.control.PoProfile;
+import com.ihealth.communication.control.NT13BProfile;
 import com.ihealth.demo.R;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
@@ -450,7 +452,6 @@ public class MainActivity extends AppCompatActivity {
             // Recherche active pour Oxymètre (PO3) et Thermomètre (NT13B)
             iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.PO3);
             iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.NT13B);
-            Toast.makeText(this, "Scan en cours...", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -482,17 +483,17 @@ public class MainActivity extends AppCompatActivity {
         public void onDeviceNotify(String mac, String deviceType, String action, String message) {
             try {
                 JSONObject json = new JSONObject(message);
-                if (action.contains("ACTION_PR_PO3") || action.contains("result_po3")) {
+                if (action.equals(PoProfile.ACTION_RESULTDATA_PO) || action.equals(PoProfile.ACTION_LIVEDA_PO)) {
                     // iHealth SDK documentation mentions keys like bloodoxygen or spo2, and heartrate or bpm
                     int spo2 = 0;
-                    if (json.has("bloodoxygen")) {
-                        spo2 = json.getInt("bloodoxygen");
+                    if (json.has(PoProfile.BLOOD_OXYGEN_PO)) {
+                        spo2 = json.getInt(PoProfile.BLOOD_OXYGEN_PO);
                     } else if (json.has("spo2")) {
                         spo2 = json.getInt("spo2");
                     }
                     int bpm = 0;
-                    if (json.has("heartrate")) {
-                        bpm = json.getInt("heartrate");
+                    if (json.has(PoProfile.PULSE_RATE_PO)) {
+                        bpm = json.getInt(PoProfile.PULSE_RATE_PO);
                     } else if (json.has("bpm")) {
                         bpm = json.getInt("bpm");
                     }
@@ -500,7 +501,8 @@ public class MainActivity extends AppCompatActivity {
                     if (spo2 > 0 && bpm > 0) {
                         int finalSpo2 = spo2;
                         int finalBpm = bpm;
-                        MainActivity.this.envoyerAuServeur(deviceType, finalBpm, finalSpo2, null);
+                        String sendDeviceType = deviceType.equals("PO3") ? "oxymetre" : deviceType;
+                        MainActivity.this.envoyerAuServeur(sendDeviceType, finalBpm, finalSpo2, null);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -509,21 +511,23 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                     }
-                } else if (action.contains("ACTION_MEASUREMENT_RESULT") || action.contains("result_nt13b")) {
+                } else if (action.equals(NT13BProfile.ACTION_MEASUREMENT_RESULT)) {
                     double temp = 0;
-                    if (json.has("result")) {
-                        temp = json.getDouble("result");
+                    if (json.has(NT13BProfile.RESULT)) {
+                        temp = json.getDouble(NT13BProfile.RESULT);
                     } else if (json.has("temperature")) {
                         temp = json.getDouble("temperature");
                     }
 
                     if (temp > 0) {
-                        double finalTemp = temp;
-                        MainActivity.this.envoyerAuServeur(deviceType, null, null, finalTemp);
+                        // Arrondir à 1 chiffre après la virgule
+                        double finalTemp = Math.round(temp * 10.0) / 10.0;
+                        String sendDeviceType = deviceType.equals("NT13B") ? "thermometre" : deviceType;
+                        MainActivity.this.envoyerAuServeur(sendDeviceType, null, null, finalTemp);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if (MainActivity.this.tvTemperature != null) MainActivity.this.tvTemperature.setText("Température: " + finalTemp + " °C");
+                                if (MainActivity.this.tvTemperature != null) MainActivity.this.tvTemperature.setText("Température: " + String.format(Locale.getDefault(), "%.1f", finalTemp) + " °C");
                             }
                         });
                     }
