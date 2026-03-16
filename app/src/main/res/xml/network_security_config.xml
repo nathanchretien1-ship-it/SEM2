@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <base-config cleartextTrafficPermitted="true">
+    <domain-config>
+        <domain includeSubdomains="true">sem2grp2.istic.univ-rennes1.fr</domain>
         <trust-anchors>
-            <certificates src="system" />
+            <certificates src="@raw/my_ca"/>
+            <certificates src="system"/>
         </trust-anchors>
-    </base-config>
+    </domain-config>
 </network-security-config>

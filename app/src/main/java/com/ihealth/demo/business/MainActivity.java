@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("timestamp", System.currentTimeMillis());
 
                 DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-                os.writeBytes(payload.toString());
+                os.write(payload.toString().getBytes("UTF-8"));
                 os.flush();
                 os.close();
 
