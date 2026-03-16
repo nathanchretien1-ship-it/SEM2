@@ -458,9 +458,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (isSdkInitialized) {
+            // Arrêter la recherche précédente avant d'en relancer une (recommandation SDK)
+            try {
+                iHealthDevicesManager.getInstance().stopDiscovery();
+            } catch (Exception e) {
+                Log.e(TAG, "Erreur lors de l'arrêt du scan", e);
+            }
             // Recherche active pour Oxymètre (PO3) et Thermomètre (NT13B)
             iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.PO3);
             iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.NT13B);
+            Log.d(TAG, "Scan silencieux en arrière-plan lancé pour PO3 et NT13B");
         }
     }
 
