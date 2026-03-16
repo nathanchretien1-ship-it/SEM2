@@ -448,6 +448,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isSdkInitialized = false;
+    private boolean isScanningPO3 = false;
 
     private void startAppLogic() {
         if (!isSdkInitialized) {
@@ -464,14 +465,33 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.e(TAG, "Erreur lors de l'arrêt du scan", e);
             }
-            // Recherche active pour Oxymètre (PO3) et Thermomètre (NT13B)
+            // Début du scan séquentiel : on commence par le PO3
+            isScanningPO3 = true;
             iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.PO3);
-            iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.NT13B);
-            Log.d(TAG, "Scan silencieux en arrière-plan lancé pour PO3 et NT13B");
+            Log.d(TAG, "Scan silencieux en arrière-plan lancé pour PO3");
         }
     }
 
     private class MyCallback extends iHealthDevicesCallback {
+        @Override
+        public void onScanFinish() {
+            super.onScanFinish();
+            Log.d(TAG, "Fin du scan actuel.");
+            if (isScanningPO3) {
+                Log.d(TAG, "Scan PO3 terminé, lancement du scan NT13B.");
+                isScanningPO3 = false;
+                iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.NT13B);
+            } else {
+                Log.d(TAG, "Scan NT13B terminé. En attente du prochain cycle.");
+            }
+        }
+
+        @Override
+        public void onScanError(String mac, long errorId) {
+            super.onScanError(mac, errorId);
+            Log.e(TAG, "Erreur de scan sur l'appareil MAC: " + mac + ", erreurID: " + errorId);
+        }
+
         @Override
         public void onScanDevice(String mac, String deviceType, int rssi) {
             Log.d(TAG, "Dispositif trouvé : " + deviceType + " | MAC: " + mac);
