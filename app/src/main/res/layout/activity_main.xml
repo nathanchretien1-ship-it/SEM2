@@ -119,6 +119,19 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edit_reg_firstname"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Prénom"
+                            android:inputType="textPersonName" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
                         <AutoCompleteTextView
                             android:id="@+id/edit_reg_sexe"
@@ -448,48 +461,64 @@
 
 
 
-                <TextView
-
-                    android:layout_width="wrap_content"
-
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="32dp">
 
-                    android:text="Mon Profil"
+                    <ImageView
+                        android:id="@+id/button_back_profile"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_logout"
+                        android:rotation="180"
+                        app:tint="@color/medicalBlue"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"/>
 
-                    android:textSize="28sp"
-
-                    android:textStyle="bold"
-
-                    android:textColor="@color/medicalBlue"
-
-                    android:layout_marginBottom="32dp" />
-
-
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Mon Profil"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/medicalBlue"
+                        android:gravity="center"
+                        android:layout_marginEnd="32dp"/>
+                </LinearLayout>
 
                 <!-- Name Field -->
-
                 <com.google.android.material.textfield.TextInputLayout
-
                     android:layout_width="match_parent"
-
                     android:layout_height="wrap_content"
-
                     android:layout_marginBottom="16dp"
-
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
-
                         android:id="@+id/edit_profile_name"
-
                         android:layout_width="match_parent"
-
                         android:layout_height="wrap_content"
-
                         android:hint="Nom"
-
                         android:inputType="textPersonName" />
 
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- First Name Field -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_profile_firstname"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Prénom"
+                        android:inputType="textPersonName" />
                 </com.google.android.material.textfield.TextInputLayout>
 
 

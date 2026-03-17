@@ -72,14 +72,17 @@ public class MainActivity extends AppCompatActivity {
 
     // Profile Elements
     private EditText editProfileName;
+    private EditText editProfileFirstName;
     private android.widget.AutoCompleteTextView editProfileSexe;
     private EditText editProfileBirthDate;
     private EditText editProfileWeight;
     private EditText editProfileHeight;
     private Button buttonSaveProfile;
+    private ImageView buttonBackProfile;
 
     // Registration Elements
     private View registrationFields;
+    private EditText editRegFirstName;
     private android.widget.AutoCompleteTextView editRegSexe;
     private EditText editRegBirthDate;
     private EditText editRegWeight;
@@ -148,13 +151,16 @@ public class MainActivity extends AppCompatActivity {
         buttonRefreshDevices = findViewById(R.id.button_refresh_devices);
 
         editProfileName = findViewById(R.id.edit_profile_name);
+        editProfileFirstName = findViewById(R.id.edit_profile_firstname);
         editProfileSexe = findViewById(R.id.edit_profile_sexe);
         editProfileBirthDate = findViewById(R.id.edit_profile_birthdate);
         editProfileWeight = findViewById(R.id.edit_profile_weight);
         editProfileHeight = findViewById(R.id.edit_profile_height);
         buttonSaveProfile = findViewById(R.id.button_save_profile);
+        buttonBackProfile = findViewById(R.id.button_back_profile);
 
         registrationFields = findViewById(R.id.registration_fields);
+        editRegFirstName = findViewById(R.id.edit_reg_firstname);
         editRegSexe = findViewById(R.id.edit_reg_sexe);
         editRegBirthDate = findViewById(R.id.edit_reg_birthdate);
         editRegWeight = findViewById(R.id.edit_reg_weight);
@@ -192,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
         buttonProfile.setOnClickListener(v -> showProfile());
 
         buttonSaveProfile.setOnClickListener(v -> updateProfile());
+        buttonBackProfile.setOnClickListener(v -> showMeasurements());
 
         // Setup DatePicker for profile birthdate
         editProfileBirthDate.setOnClickListener(v -> showDatePickerDialog(editProfileBirthDate));
@@ -238,12 +245,13 @@ public class MainActivity extends AppCompatActivity {
                 String name = editName.getText().toString();
                 String email = editEmail.getText().toString();
                 String pwd = editPassword.getText().toString();
+                String firstName = editRegFirstName.getText().toString();
                 String sexe = editRegSexe.getText().toString();
                 String birthDate = editRegBirthDate.getText().toString();
                 String weightStr = editRegWeight.getText().toString();
                 String heightStr = editRegHeight.getText().toString();
 
-                if (name.isEmpty() || email.isEmpty() || pwd.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty()) {
+                if (name.isEmpty() || email.isEmpty() || pwd.isEmpty() || firstName.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty()) {
                     Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -251,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
                 hideKeyboard();
                 buttonRegister.setEnabled(false);
                 Toast.makeText(this, "Inscription en cours...", Toast.LENGTH_SHORT).show();
-                registerToApi(name, email, pwd, sexe, birthDate, Float.parseFloat(weightStr), Float.parseFloat(heightStr));
+                registerToApi(name, firstName, email, pwd, sexe, birthDate, Float.parseFloat(weightStr), Float.parseFloat(heightStr));
             }
         });
         buttonRefreshDevices.setOnClickListener(view -> {
@@ -280,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
         return "{}";
     }
 
-    private void registerToApi(String name, String email, String password, String sexe, String birthDate, float weight, float height) {
+    private void registerToApi(String name, String firstName, String email, String password, String sexe, String birthDate, float weight, float height) {
         new Thread(() -> {
             HttpURLConnection conn = null;
             try {
@@ -295,6 +303,7 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject payload = new JSONObject();
                 payload.put("action", "register");
                 payload.put("nameUsers", name);
+                payload.put("firstName", firstName);
                 payload.put("email", email);
                 payload.put("passwordUser", password);
 
@@ -471,16 +480,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateProfile() {
         String name = editProfileName.getText().toString();
+        String firstName = editProfileFirstName.getText().toString();
         String sexe = editProfileSexe.getText().toString();
         String birthDate = editProfileBirthDate.getText().toString();
         String weightStr = editProfileWeight.getText().toString();
         String heightStr = editProfileHeight.getText().toString();
 
-        if (name.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty()) {
+        if (name.isEmpty() || firstName.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty()) {
             Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        hideKeyboard();
         buttonSaveProfile.setEnabled(false);
         Toast.makeText(this, "Mise à jour...", Toast.LENGTH_SHORT).show();
 
@@ -498,6 +509,7 @@ public class MainActivity extends AppCompatActivity {
 
                 JSONObject payload = new JSONObject();
                 payload.put("nameUsers", name);
+                payload.put("firstName", firstName);
                 payload.put("sexe", sexe);
                 payload.put("birthDate", birthDate);
                 payload.put("weight", Float.parseFloat(weightStr));
@@ -583,6 +595,8 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             if (data.has("nameUsers")) editProfileName.setText(data.getString("nameUsers"));
                             else if (data.has("name")) editProfileName.setText(data.getString("name"));
+
+                            if (data.has("firstName")) editProfileFirstName.setText(data.getString("firstName"));
 
                             if (data.has("sexe")) {
                                 String sexe = data.getString("sexe");
