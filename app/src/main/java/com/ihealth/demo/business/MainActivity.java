@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.os.Handler;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private String URL_AUTH = "https://sem2grp2.istic.univ-rennes1.fr/api/auth.php";
     private String URL_MEASUREMENTS = "https://sem2grp2.istic.univ-rennes1.fr/api/measurements.php";
     private String URL_PATIENT = "https://sem2grp2.istic.univ-rennes1.fr/api/patient.php";
+    private String URL_DOCTORS = "https://sem2grp2.istic.univ-rennes1.fr/api/doctors.php";
     private String apiToken = null;
 
     // UI Elements
@@ -78,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
     private EditText editProfileHeight;
     private EditText editProfileCity;
     private EditText editProfilePostal;
+    private EditText editProfileCountry;
+    private android.widget.AutoCompleteTextView editProfileDoctor;
+    private EditText editProfileDoctorEmail;
     private Button buttonSaveProfile;
     private ImageView buttonBackProfile;
 
@@ -91,8 +96,15 @@ public class MainActivity extends AppCompatActivity {
     private EditText editRegHeight;
     private EditText editRegCity;
     private EditText editRegPostal;
+    private EditText editRegCountry;
+    private android.widget.AutoCompleteTextView editRegDoctor;
 
     private BottomNavigationView bottomNavigationView;
+
+    // Store doctors fetched from API
+    private Map<String, Integer> doctorsMap = new HashMap<>();
+    private Map<String, String> doctorsEmailMap = new HashMap<>();
+    private List<String> doctorNamesList = new ArrayList<>();
 
     // History RecyclerView
     private RecyclerView recyclerHistory;
@@ -161,6 +173,9 @@ public class MainActivity extends AppCompatActivity {
         editProfileHeight = findViewById(R.id.edit_profile_height);
         editProfileCity = findViewById(R.id.edit_profile_city);
         editProfilePostal = findViewById(R.id.edit_profile_postal);
+        editProfileCountry = findViewById(R.id.edit_profile_country);
+        editProfileDoctor = findViewById(R.id.edit_profile_doctor);
+        editProfileDoctorEmail = findViewById(R.id.edit_profile_doctor_email);
         buttonSaveProfile = findViewById(R.id.button_save_profile);
         buttonBackProfile = findViewById(R.id.button_back_profile);
 
@@ -173,6 +188,8 @@ public class MainActivity extends AppCompatActivity {
         editRegHeight = findViewById(R.id.edit_reg_height);
         editRegCity = findViewById(R.id.edit_reg_city);
         editRegPostal = findViewById(R.id.edit_reg_postal);
+        editRegCountry = findViewById(R.id.edit_reg_country);
+        editRegDoctor = findViewById(R.id.edit_reg_doctor);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -223,6 +240,20 @@ public class MainActivity extends AppCompatActivity {
         // Setup Sexe Spinner for registration
         editRegSexe.setAdapter(adapter);
 
+        // Fetch doctors for the autocomplete
+        fetchDoctors();
+
+        editProfileDoctor.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedDoctorName = (String) parent.getItemAtPosition(position);
+            String doctorEmail = doctorsEmailMap.get(selectedDoctorName);
+            if (doctorEmail != null && !doctorEmail.isEmpty()) {
+                editProfileDoctorEmail.setText(doctorEmail);
+                editProfileDoctorEmail.setVisibility(View.VISIBLE);
+            } else {
+                editProfileDoctorEmail.setText("");
+            }
+        });
+
         if (sessionManager.isLoggedIn()) {
             apiToken = sessionManager.getToken();
             hideAllLayouts();
@@ -259,16 +290,23 @@ public class MainActivity extends AppCompatActivity {
                 String heightStr = editRegHeight.getText().toString();
                 String city = editRegCity.getText().toString();
                 String postal = editRegPostal.getText().toString();
+                String country = editRegCountry.getText().toString();
+                String doctorName = editRegDoctor.getText().toString();
 
-                if (lastName.isEmpty() || firstName.isEmpty() || email.isEmpty() || pwd.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || city.isEmpty() || postal.isEmpty()) {
-                    Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
+                if (lastName.isEmpty() || firstName.isEmpty() || email.isEmpty() || pwd.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || city.isEmpty() || postal.isEmpty() || country.isEmpty()) {
+                    Toast.makeText(this, "Veuillez remplir tous les champs (sauf le médecin si vous n'en avez pas)", Toast.LENGTH_SHORT).show();
                     return;
+                }
+
+                Integer idDoctor = null;
+                if (!doctorName.isEmpty() && doctorsMap.containsKey(doctorName)) {
+                    idDoctor = doctorsMap.get(doctorName);
                 }
 
                 hideKeyboard();
                 buttonRegister.setEnabled(false);
                 Toast.makeText(this, "Inscription en cours...", Toast.LENGTH_SHORT).show();
-                registerToApi(lastName, firstName, email, pwd, sexe, birthDate, Float.parseFloat(weightStr), Float.parseFloat(heightStr), city, postal);
+                registerToApi(lastName, firstName, email, pwd, sexe, birthDate, Float.parseFloat(weightStr), Float.parseFloat(heightStr), city, postal, country, idDoctor);
             }
         });
         buttonRefreshDevices.setOnClickListener(view -> {
@@ -312,7 +350,7 @@ public class MainActivity extends AppCompatActivity {
         return "{}";
     }
 
-    private void registerToApi(String lastName, String firstName, String email, String password, String sexe, String birthDate, float weight, float height, String city, String postal) {
+    private void registerToApi(String lastName, String firstName, String email, String password, String sexe, String birthDate, float weight, float height, String city, String postal, String country, Integer idDoctor) {
         new Thread(() -> {
             HttpURLConnection conn = null;
             try {
@@ -337,6 +375,10 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("height", height);
                 payload.put("city", city);
                 payload.put("postal", postal);
+                payload.put("country", country);
+                if (idDoctor != null) {
+                    payload.put("idDoctor", idDoctor);
+                }
 
                 Log.d("SANTE_APP_API", "Register request payload: " + payload.toString());
 
@@ -367,11 +409,22 @@ public class MainActivity extends AppCompatActivity {
                         buttonRegister.setEnabled(true);
                         Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
                         if (success) {
-                            // Si l'inscription réussit, on peut éventuellement vider les champs pour se connecter ensuite
+                            // Vider les champs pour se connecter ensuite et rediriger vers la vue de connexion
                             editRegLastName.setText("");
                             editRegFirstName.setText("");
                             editRegCity.setText("");
                             editRegPostal.setText("");
+                            editRegCountry.setText("");
+                            editRegDoctor.setText("", false);
+                            editPassword.setText("");
+
+                            if (idDoctor != null) {
+                                sessionManager.saveIdDoctor(idDoctor);
+                            }
+
+                            registrationFields.setVisibility(View.GONE);
+                            buttonLogin.setVisibility(View.VISIBLE);
+                            buttonRegister.setText("Créer un compte");
                         }
                     });
                 } else {
@@ -516,11 +569,19 @@ public class MainActivity extends AppCompatActivity {
         String heightStr = editProfileHeight.getText().toString();
         String city = editProfileCity.getText().toString();
         String postal = editProfilePostal.getText().toString();
+        String country = editProfileCountry.getText().toString();
+        String doctorName = editProfileDoctor.getText().toString();
 
-        if (lastName.isEmpty() || firstName.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || city.isEmpty() || postal.isEmpty()) {
+        if (lastName.isEmpty() || firstName.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || city.isEmpty() || postal.isEmpty() || country.isEmpty()) {
             Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        Integer idDoctor = null;
+        if (!doctorName.isEmpty() && doctorsMap.containsKey(doctorName)) {
+            idDoctor = doctorsMap.get(doctorName);
+        }
+        final Integer finalIdDoctor = idDoctor;
 
         hideKeyboard();
         buttonSaveProfile.setEnabled(false);
@@ -547,6 +608,10 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("height", Float.parseFloat(heightStr));
                 payload.put("city", city);
                 payload.put("postal", postal);
+                payload.put("country", country);
+                if (finalIdDoctor != null) {
+                    payload.put("idDoctor", finalIdDoctor);
+                }
 
                 Log.d("SANTE_APP_API", "Update Profile request payload: " + payload.toString());
 
@@ -575,6 +640,9 @@ public class MainActivity extends AppCompatActivity {
                     buttonSaveProfile.setEnabled(true);
                     if (responseCode >= 200 && responseCode < 300) {
                         Toast.makeText(this, "Profil mis à jour", Toast.LENGTH_SHORT).show();
+                        if (finalIdDoctor != null) {
+                            sessionManager.saveIdDoctor(finalIdDoctor);
+                        }
                     } else {
                         Toast.makeText(this, "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
                     }
@@ -642,6 +710,24 @@ public class MainActivity extends AppCompatActivity {
 
                             if (data.has("city")) editProfileCity.setText(data.getString("city"));
                             if (data.has("postal")) editProfilePostal.setText(data.getString("postal"));
+                            if (data.has("country")) editProfileCountry.setText(data.getString("country"));
+
+                            // Doctor fallback: l'API ne renvoie pas toujours idDoctor, donc on regarde les prefs
+                            int savedDoctorId = sessionManager.getIdDoctor();
+                            if (savedDoctorId != -1) {
+                                for (Map.Entry<String, Integer> entry : doctorsMap.entrySet()) {
+                                    if (entry.getValue() == savedDoctorId) {
+                                        String doctorName = entry.getKey();
+                                        editProfileDoctor.setText(doctorName, false);
+                                        String doctorEmail = doctorsEmailMap.get(doctorName);
+                                        if (doctorEmail != null && !doctorEmail.isEmpty()) {
+                                            editProfileDoctorEmail.setText(doctorEmail);
+                                            editProfileDoctorEmail.setVisibility(View.VISIBLE);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
                         } catch (org.json.JSONException e) {
                             Log.e("SANTE_APP_API", "Erreur parsing JSON profile: " + e.getMessage());
                         }
@@ -656,6 +742,56 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
+
+    private void fetchDoctors() {
+        new Thread(() -> {
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(URL_DOCTORS);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+
+                int responseCode = conn.getResponseCode();
+                java.io.InputStream in = (responseCode >= 200 && responseCode < 300) ? conn.getInputStream() : conn.getErrorStream();
+                if (in == null) return;
+
+                java.util.Scanner scanner = new java.util.Scanner(in).useDelimiter("\\A");
+                String responseBody = scanner.hasNext() ? scanner.next() : "";
+                scanner.close();
+
+                String jsonBody = extractJson(responseBody);
+                if (responseCode >= 200 && responseCode < 300 && !jsonBody.equals("{}")) {
+                    JSONObject jsonObject = new JSONObject(jsonBody);
+                    if (jsonObject.optBoolean("success", false) && jsonObject.has("data")) {
+                        org.json.JSONArray data = jsonObject.getJSONArray("data");
+                        for (int i = 0; i < data.length(); i++) {
+                            JSONObject doc = data.getJSONObject(i);
+                            int id = doc.getInt("idDoctor");
+                            String name = doc.getString("nameDoctor");
+                            String email = doc.has("email") ? doc.getString("email") : "";
+                            String displayName = name;
+                            doctorsMap.put(displayName, id);
+                            doctorsEmailMap.put(displayName, email);
+                            doctorNamesList.add(displayName);
+                        }
+
+                        runOnUiThread(() -> {
+                            android.widget.ArrayAdapter<String> doctorAdapter = new android.widget.ArrayAdapter<>(
+                                    MainActivity.this, android.R.layout.simple_dropdown_item_1line, doctorNamesList);
+                            editRegDoctor.setAdapter(doctorAdapter);
+                            editProfileDoctor.setAdapter(doctorAdapter);
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
+    }
 
     private void logout() {
         try {
@@ -689,6 +825,8 @@ public class MainActivity extends AppCompatActivity {
         editRegHeight.setText("");
         editRegCity.setText("");
         editRegPostal.setText("");
+        editRegCountry.setText("");
+        editRegDoctor.setText("", false);
         buttonLogin.setVisibility(View.VISIBLE);
         buttonRegister.setText("Créer un compte");
     }
@@ -742,7 +880,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadHistoryFromDatabase() {
         databaseExecutor.execute(() -> {
-            List<MeasurementEntity> measurements = measurementDao.getAllMeasurements();
+            String currentUserEmail = sessionManager.getEmail();
+            List<MeasurementEntity> measurements = measurementDao.getAllMeasurements(currentUserEmail != null ? currentUserEmail : "");
             runOnUiThread(() -> historyAdapter.setMeasurements(measurements));
         });
     }
@@ -908,7 +1047,8 @@ public class MainActivity extends AppCompatActivity {
         long timestamp = System.currentTimeMillis();
         // Save to local database
         databaseExecutor.execute(() -> {
-            MeasurementEntity entity = new MeasurementEntity(deviceType, bpm, spo2, temperature, timestamp);
+            String currentUserEmail = sessionManager.getEmail();
+            MeasurementEntity entity = new MeasurementEntity(deviceType, bpm, spo2, temperature, timestamp, currentUserEmail != null ? currentUserEmail : "");
             measurementDao.insert(entity);
             // Delete records older than 7 days (7 * 24 * 60 * 60 * 1000 ms = 604800000 ms)
             measurementDao.deleteOlderThan(timestamp - 604800000L);
@@ -936,6 +1076,11 @@ public class MainActivity extends AppCompatActivity {
                 if (bpm != null) payload.put("bpm", bpm);
                 if (spo2 != null) payload.put("spo2", spo2);
                 if (temperature != null) payload.put("temperature", temperature);
+
+                int idDoctor = sessionManager.getIdDoctor();
+                if (idDoctor != -1) {
+                    payload.put("idDoctor", idDoctor);
+                }
 
                 // Add measureDate and measureTime based on the current device time
                 Date now = new Date();
