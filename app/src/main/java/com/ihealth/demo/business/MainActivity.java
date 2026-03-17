@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private final static String TAG = "SANTE_APP";
     private String URL_AUTH = "https://sem2grp2.istic.univ-rennes1.fr/api/auth.php";
     private String URL_MEASUREMENTS = "https://sem2grp2.istic.univ-rennes1.fr/api/measurements.php";
+    private String URL_PATIENT = "https://sem2grp2.istic.univ-rennes1.fr/api/patient.php";
     private String apiToken = null;
 
     // UI Elements
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private View measurementLayout;
     private View historyLayout;
     private View devicesLayout;
+    private View profileLayout;
     private LinearLayout devicesListContainer;
 
     private EditText editName;
@@ -64,9 +66,24 @@ public class MainActivity extends AppCompatActivity {
     private EditText editPassword;
     private Button buttonLogin;
     private Button buttonRegister;
-    private Button buttonTest;
     private ImageView buttonLogout;
+    private ImageView buttonProfile;
     private Button buttonRefreshDevices;
+
+    // Profile Elements
+    private EditText editProfileName;
+    private android.widget.AutoCompleteTextView editProfileSexe;
+    private EditText editProfileBirthDate;
+    private EditText editProfileWeight;
+    private EditText editProfileHeight;
+    private Button buttonSaveProfile;
+
+    // Registration Elements
+    private View registrationFields;
+    private android.widget.AutoCompleteTextView editRegSexe;
+    private EditText editRegBirthDate;
+    private EditText editRegWeight;
+    private EditText editRegHeight;
 
     private BottomNavigationView bottomNavigationView;
 
@@ -118,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
         measurementLayout = findViewById(R.id.measurement_layout);
         historyLayout = findViewById(R.id.history_layout);
         devicesLayout = findViewById(R.id.devices_layout);
+        profileLayout = findViewById(R.id.profile_layout);
         devicesListContainer = findViewById(R.id.devices_list_container);
 
         editName = findViewById(R.id.edit_name);
@@ -125,9 +143,22 @@ public class MainActivity extends AppCompatActivity {
         editPassword = findViewById(R.id.edit_password);
         buttonLogin = findViewById(R.id.button_login);
         buttonRegister = findViewById(R.id.button_register);
-        buttonTest = findViewById(R.id.test_button);
         buttonLogout = findViewById(R.id.btn_logout);
+        buttonProfile = findViewById(R.id.btn_profile);
         buttonRefreshDevices = findViewById(R.id.button_refresh_devices);
+
+        editProfileName = findViewById(R.id.edit_profile_name);
+        editProfileSexe = findViewById(R.id.edit_profile_sexe);
+        editProfileBirthDate = findViewById(R.id.edit_profile_birthdate);
+        editProfileWeight = findViewById(R.id.edit_profile_weight);
+        editProfileHeight = findViewById(R.id.edit_profile_height);
+        buttonSaveProfile = findViewById(R.id.button_save_profile);
+
+        registrationFields = findViewById(R.id.registration_fields);
+        editRegSexe = findViewById(R.id.edit_reg_sexe);
+        editRegBirthDate = findViewById(R.id.edit_reg_birthdate);
+        editRegWeight = findViewById(R.id.edit_reg_weight);
+        editRegHeight = findViewById(R.id.edit_reg_height);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -158,14 +189,37 @@ public class MainActivity extends AppCompatActivity {
         });
 
         buttonLogout.setOnClickListener(v -> logout());
+        buttonProfile.setOnClickListener(v -> showProfile());
+
+        buttonSaveProfile.setOnClickListener(v -> updateProfile());
+
+        // Setup DatePicker for profile birthdate
+        editProfileBirthDate.setOnClickListener(v -> showDatePickerDialog(editProfileBirthDate));
+
+        // Setup DatePicker for registration birthdate
+        editRegBirthDate.setOnClickListener(v -> showDatePickerDialog(editRegBirthDate));
+
+        // Setup Sexe Spinner for profile
+        String[] sexes = new String[] {"Homme", "Femme", "Autre"};
+        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(
+            this, android.R.layout.simple_dropdown_item_1line, sexes);
+        editProfileSexe.setAdapter(adapter);
+
+        // Setup Sexe Spinner for registration
+        editRegSexe.setAdapter(adapter);
 
         if (sessionManager.isLoggedIn()) {
             apiToken = sessionManager.getToken();
-            loginLayout.setVisibility(View.GONE);
+            hideAllLayouts();
             measurementLayout.setVisibility(View.VISIBLE);
+            buttonProfile.setVisibility(View.VISIBLE);
+            findViewById(R.id.img_app_logo).setVisibility(View.VISIBLE);
             bottomNavigationView.setVisibility(View.VISIBLE);
             buttonLogout.setVisibility(View.VISIBLE);
             startDiscoveryLoop();
+        } else {
+            hideAllLayouts();
+            loginLayout.setVisibility(View.VISIBLE);
         }
 
         buttonLogin.setOnClickListener(view -> {
@@ -175,14 +229,30 @@ public class MainActivity extends AppCompatActivity {
             loginToApi(editEmail.getText().toString(), editPassword.getText().toString());
         });
         buttonRegister.setOnClickListener(view -> {
-            hideKeyboard();
-            buttonRegister.setEnabled(false);
-            Toast.makeText(this, "Inscription en cours...", Toast.LENGTH_SHORT).show();
-            registerToApi(editName.getText().toString(), editEmail.getText().toString(), editPassword.getText().toString());
-        });
-        buttonTest.setOnClickListener(view -> {
-            Toast.makeText(this, "Scan lancé", Toast.LENGTH_SHORT).show();
-            startAppLogic();
+            if (editName.getVisibility() == View.GONE) {
+                editName.setVisibility(View.VISIBLE);
+                registrationFields.setVisibility(View.VISIBLE);
+                buttonLogin.setVisibility(View.GONE);
+                buttonRegister.setText("Valider l'inscription");
+            } else {
+                String name = editName.getText().toString();
+                String email = editEmail.getText().toString();
+                String pwd = editPassword.getText().toString();
+                String sexe = editRegSexe.getText().toString();
+                String birthDate = editRegBirthDate.getText().toString();
+                String weightStr = editRegWeight.getText().toString();
+                String heightStr = editRegHeight.getText().toString();
+
+                if (name.isEmpty() || email.isEmpty() || pwd.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty()) {
+                    Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                hideKeyboard();
+                buttonRegister.setEnabled(false);
+                Toast.makeText(this, "Inscription en cours...", Toast.LENGTH_SHORT).show();
+                registerToApi(name, email, pwd, sexe, birthDate, Float.parseFloat(weightStr), Float.parseFloat(heightStr));
+            }
         });
         buttonRefreshDevices.setOnClickListener(view -> {
             Toast.makeText(this, "Actualisation de la connexion...", Toast.LENGTH_SHORT).show();
@@ -210,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
         return "{}";
     }
 
-    private void registerToApi(String name, String email, String password) {
+    private void registerToApi(String name, String email, String password, String sexe, String birthDate, float weight, float height) {
         new Thread(() -> {
             HttpURLConnection conn = null;
             try {
@@ -228,11 +298,10 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("email", email);
                 payload.put("passwordUser", password);
 
-                // Champs requis avec des valeurs par défaut pour correspondre à la BDD
-                payload.put("sexe", "Other");
-                payload.put("birthDate", "2000-01-01");
-                payload.put("weight", 70.0);
-                payload.put("height", 170.0);
+                payload.put("sexe", sexe);
+                payload.put("birthDate", birthDate);
+                payload.put("weight", weight);
+                payload.put("height", height);
 
                 Log.d("SANTE_APP_API", "Register request payload: " + payload.toString());
 
@@ -364,21 +433,211 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void logout() {
-        sessionManager.clearSession();
-        apiToken = null;
-        stopDiscoveryLoop();
-        loginLayout.setVisibility(View.VISIBLE);
+
+    private void hideAllLayouts() {
+        loginLayout.setVisibility(View.GONE);
         measurementLayout.setVisibility(View.GONE);
         historyLayout.setVisibility(View.GONE);
         devicesLayout.setVisibility(View.GONE);
+        profileLayout.setVisibility(View.GONE);
         bottomNavigationView.setVisibility(View.GONE);
         buttonLogout.setVisibility(View.GONE);
+        buttonProfile.setVisibility(View.GONE);
+        findViewById(R.id.img_app_logo).setVisibility(View.GONE);
+    }
+
+    private void showDatePickerDialog(EditText dateEditText) {
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        int year = calendar.get(java.util.Calendar.YEAR);
+        int month = calendar.get(java.util.Calendar.MONTH);
+        int day = calendar.get(java.util.Calendar.DAY_OF_MONTH);
+
+        android.app.DatePickerDialog datePickerDialog = new android.app.DatePickerDialog(
+                this,
+                (view, year1, month1, dayOfMonth) -> {
+                    String selectedDate = String.format(java.util.Locale.FRANCE, "%04d-%02d-%02d", year1, month1 + 1, dayOfMonth);
+                    dateEditText.setText(selectedDate);
+                },
+                year, month, day);
+        datePickerDialog.show();
+    }
+
+    private void showProfile() {
+        hideAllLayouts();
+        profileLayout.setVisibility(View.VISIBLE);
+        bottomNavigationView.setVisibility(View.VISIBLE);
+        fetchProfile();
+    }
+
+    private void updateProfile() {
+        String name = editProfileName.getText().toString();
+        String sexe = editProfileSexe.getText().toString();
+        String birthDate = editProfileBirthDate.getText().toString();
+        String weightStr = editProfileWeight.getText().toString();
+        String heightStr = editProfileHeight.getText().toString();
+
+        if (name.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty()) {
+            Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        buttonSaveProfile.setEnabled(false);
+        Toast.makeText(this, "Mise à jour...", Toast.LENGTH_SHORT).show();
+
+        new Thread(() -> {
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(URL_PATIENT);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("PUT");
+                conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                conn.setRequestProperty("Authorization", "Bearer " + apiToken);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+                conn.setDoOutput(true);
+
+                JSONObject payload = new JSONObject();
+                payload.put("nameUsers", name);
+                payload.put("sexe", sexe);
+                payload.put("birthDate", birthDate);
+                payload.put("weight", Float.parseFloat(weightStr));
+                payload.put("height", Float.parseFloat(heightStr));
+
+                Log.d("SANTE_APP_API", "Update Profile request payload: " + payload.toString());
+
+                java.io.OutputStream os = conn.getOutputStream();
+                os.write(payload.toString().getBytes("UTF-8"));
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                java.io.InputStream in = (responseCode >= 200 && responseCode < 300) ? conn.getInputStream() : conn.getErrorStream();
+                if (in == null) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Erreur réseau", Toast.LENGTH_SHORT).show();
+                        buttonSaveProfile.setEnabled(true);
+                    });
+                    return;
+                }
+
+                java.util.Scanner scanner = new java.util.Scanner(in).useDelimiter("\\A");
+                String responseBody = scanner.hasNext() ? scanner.next() : "";
+                scanner.close();
+
+                Log.d("SANTE_APP_API", "Update Profile Response Code: " + responseCode);
+                Log.d("SANTE_APP_API", "Update Profile Response Body: " + responseBody);
+
+                runOnUiThread(() -> {
+                    buttonSaveProfile.setEnabled(true);
+                    if (responseCode >= 200 && responseCode < 300) {
+                        Toast.makeText(this, "Profil mis à jour", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("SANTE_APP_API", "Exception: " + e.getMessage());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Erreur de connexion", Toast.LENGTH_SHORT).show();
+                    buttonSaveProfile.setEnabled(true);
+                });
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
+    }
+
+    private void fetchProfile() {
+        if (apiToken == null) return;
+
+        new Thread(() -> {
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(URL_PATIENT);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Bearer " + apiToken);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+
+                int responseCode = conn.getResponseCode();
+                java.io.InputStream in = (responseCode >= 200 && responseCode < 300) ? conn.getInputStream() : conn.getErrorStream();
+                if (in == null) return;
+
+                java.util.Scanner scanner = new java.util.Scanner(in).useDelimiter("\\A");
+                String responseBody = scanner.hasNext() ? scanner.next() : "";
+                scanner.close();
+
+                Log.d("SANTE_APP_API", "Fetch Profile Response Code: " + responseCode);
+                Log.d("SANTE_APP_API", "Fetch Profile Response Body: " + responseBody);
+
+                String jsonBody = extractJson(responseBody);
+
+                if (responseCode >= 200 && responseCode < 300 && !jsonBody.equals("{}")) {
+                    JSONObject jsonObject = new JSONObject(jsonBody);
+                    // Handle wrapped responses, typical API pattern
+                    JSONObject data = jsonObject.has("data") ? jsonObject.getJSONObject("data") : jsonObject;
+
+                    runOnUiThread(() -> {
+                        try {
+                            if (data.has("nameUsers")) editProfileName.setText(data.getString("nameUsers"));
+                            else if (data.has("name")) editProfileName.setText(data.getString("name"));
+
+                            if (data.has("sexe")) {
+                                String sexe = data.getString("sexe");
+                                editProfileSexe.setText(sexe, false); // false to not trigger dropdown on setText
+                            }
+                            if (data.has("birthDate")) editProfileBirthDate.setText(data.getString("birthDate"));
+                            if (data.has("weight")) editProfileWeight.setText(String.valueOf(data.getDouble("weight")));
+                            if (data.has("height")) editProfileHeight.setText(String.valueOf(data.getDouble("height")));
+                        } catch (org.json.JSONException e) {
+                            Log.e("SANTE_APP_API", "Erreur parsing JSON profile: " + e.getMessage());
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("SANTE_APP_API", "Exception fetch profile: " + e.getMessage());
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
+    }
+
+
+    private void logout() {
+        try {
+            for (String mac : deviceStates.keySet()) {
+                if (deviceStates.get(mac).contains("PO3")) {
+                    iHealthDevicesManager.getInstance().disconnectDevice(mac, iHealthDevicesManager.TYPE_PO3);
+                } else if (deviceStates.get(mac).contains("NT13B")) {
+                    iHealthDevicesManager.getInstance().disconnectDevice(mac, iHealthDevicesManager.TYPE_NT13B);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur lors de la deconnexion des devices", e);
+        }
+
+        sessionManager.clearSession();
+        apiToken = null;
+        stopDiscoveryLoop();
+        Toast.makeText(this, "Déconnexion...", Toast.LENGTH_SHORT).show();
+        hideAllLayouts();
+        loginLayout.setVisibility(View.VISIBLE);
 
         // Reset inputs
         editEmail.setText("");
         editPassword.setText("");
         editName.setText("");
+        editName.setVisibility(View.GONE);
+        registrationFields.setVisibility(View.GONE);
+        editRegSexe.setText("");
+        editRegBirthDate.setText("");
+        editRegWeight.setText("");
+        editRegHeight.setText("");
+        buttonLogin.setVisibility(View.VISIBLE);
+        buttonRegister.setText("Créer un compte");
     }
 
     private void startDiscoveryLoop() {
@@ -397,22 +656,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showMeasurements() {
+        hideAllLayouts();
         measurementLayout.setVisibility(View.VISIBLE);
-        historyLayout.setVisibility(View.GONE);
-        devicesLayout.setVisibility(View.GONE);
+        bottomNavigationView.setVisibility(View.VISIBLE);
+        buttonLogout.setVisibility(View.VISIBLE);
+        buttonProfile.setVisibility(View.VISIBLE);
+        findViewById(R.id.img_app_logo).setVisibility(View.VISIBLE);
+        startDiscoveryLoop();
     }
 
     private void showHistory() {
-        measurementLayout.setVisibility(View.GONE);
+        hideAllLayouts();
         historyLayout.setVisibility(View.VISIBLE);
-        devicesLayout.setVisibility(View.GONE);
+        bottomNavigationView.setVisibility(View.VISIBLE);
+        buttonLogout.setVisibility(View.VISIBLE);
+        buttonProfile.setVisibility(View.VISIBLE);
+        findViewById(R.id.img_app_logo).setVisibility(View.VISIBLE);
+        stopDiscoveryLoop();
         loadHistoryFromDatabase();
     }
 
     private void showDevices() {
-        measurementLayout.setVisibility(View.GONE);
-        historyLayout.setVisibility(View.GONE);
+        hideAllLayouts();
         devicesLayout.setVisibility(View.VISIBLE);
+        bottomNavigationView.setVisibility(View.VISIBLE);
+        buttonLogout.setVisibility(View.VISIBLE);
+        buttonProfile.setVisibility(View.VISIBLE);
+        findViewById(R.id.img_app_logo).setVisibility(View.VISIBLE);
+        stopDiscoveryLoop();
         refreshDevicesList();
     }
 
