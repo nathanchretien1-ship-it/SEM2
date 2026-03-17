@@ -41,4 +41,13 @@ public class SessionManager {
     public boolean isLoggedIn() {
         return getToken() != null;
     }
+
+    public void saveIdDoctor(int idDoctor) {
+        editor.putInt("idDoctor", idDoctor);
+        editor.apply();
+    }
+
+    public int getIdDoctor() {
+        return pref.getInt("idDoctor", -1); // -1 if not found
+    }
 }
