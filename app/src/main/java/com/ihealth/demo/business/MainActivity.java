@@ -813,6 +813,15 @@ public class MainActivity extends AppCompatActivity {
         hideAllLayouts();
         loginLayout.setVisibility(View.VISIBLE);
 
+        // Reset UI measurements
+        tvSpo2.setText("-- %");
+        tvBpm.setText("-- bpm");
+        tvTemperature.setText("-- °C");
+
+        // Clear devices list
+        deviceStates.clear();
+        refreshDevicesList();
+
         // Reset inputs
         editEmail.setText("");
         editPassword.setText("");
