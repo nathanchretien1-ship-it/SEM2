@@ -94,8 +94,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             if (apiToken != null) {
-                startAppLogic();
-                // Schedule next discovery in 30 seconds
+                if (!isScanningDevice) {
+                    startAppLogic();
+                } else {
+                    Log.d(TAG, "Un scan est déjà en cours, on passe ce tour.");
+                }
+                // On planifie systématiquement le prochain essai dans 30 secondes
                 discoveryHandler.postDelayed(this, 30000);
             }
         }
@@ -448,6 +452,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isSdkInitialized = false;
+    private boolean isScanningDevice = false;
     private boolean isScanningPO3 = false;
 
     private void startAppLogic() {
@@ -459,7 +464,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (isSdkInitialized) {
-            // Arrêter la recherche précédente avant d'en relancer une (recommandation SDK)
+            isScanningDevice = true;
             try {
                 iHealthDevicesManager.getInstance().stopDiscovery();
             } catch (Exception e) {
@@ -483,6 +488,7 @@ public class MainActivity extends AppCompatActivity {
                 iHealthDevicesManager.getInstance().startDiscovery(DiscoveryTypeEnum.NT13B);
             } else {
                 Log.d(TAG, "Scan NT13B terminé. En attente du prochain cycle.");
+                isScanningDevice = false;
             }
         }
 
