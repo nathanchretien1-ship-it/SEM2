@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
     private View profileLayout;
     private LinearLayout devicesListContainer;
 
-    private EditText editName;
     private EditText editEmail;
     private EditText editPassword;
     private Button buttonLogin;
@@ -71,22 +70,27 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonRefreshDevices;
 
     // Profile Elements
-    private EditText editProfileName;
+    private EditText editProfileLastName;
     private EditText editProfileFirstName;
     private android.widget.AutoCompleteTextView editProfileSexe;
     private EditText editProfileBirthDate;
     private EditText editProfileWeight;
     private EditText editProfileHeight;
+    private EditText editProfileCity;
+    private EditText editProfilePostal;
     private Button buttonSaveProfile;
     private ImageView buttonBackProfile;
 
     // Registration Elements
     private View registrationFields;
+    private EditText editRegLastName;
     private EditText editRegFirstName;
     private android.widget.AutoCompleteTextView editRegSexe;
     private EditText editRegBirthDate;
     private EditText editRegWeight;
     private EditText editRegHeight;
+    private EditText editRegCity;
+    private EditText editRegPostal;
 
     private BottomNavigationView bottomNavigationView;
 
@@ -141,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
         profileLayout = findViewById(R.id.profile_layout);
         devicesListContainer = findViewById(R.id.devices_list_container);
 
-        editName = findViewById(R.id.edit_name);
         editEmail = findViewById(R.id.edit_email);
         editPassword = findViewById(R.id.edit_password);
         buttonLogin = findViewById(R.id.button_login);
@@ -150,21 +153,26 @@ public class MainActivity extends AppCompatActivity {
         buttonProfile = findViewById(R.id.btn_profile);
         buttonRefreshDevices = findViewById(R.id.button_refresh_devices);
 
-        editProfileName = findViewById(R.id.edit_profile_name);
+        editProfileLastName = findViewById(R.id.edit_profile_lastname);
         editProfileFirstName = findViewById(R.id.edit_profile_firstname);
         editProfileSexe = findViewById(R.id.edit_profile_sexe);
         editProfileBirthDate = findViewById(R.id.edit_profile_birthdate);
         editProfileWeight = findViewById(R.id.edit_profile_weight);
         editProfileHeight = findViewById(R.id.edit_profile_height);
+        editProfileCity = findViewById(R.id.edit_profile_city);
+        editProfilePostal = findViewById(R.id.edit_profile_postal);
         buttonSaveProfile = findViewById(R.id.button_save_profile);
         buttonBackProfile = findViewById(R.id.button_back_profile);
 
         registrationFields = findViewById(R.id.registration_fields);
+        editRegLastName = findViewById(R.id.edit_reg_lastname);
         editRegFirstName = findViewById(R.id.edit_reg_firstname);
         editRegSexe = findViewById(R.id.edit_reg_sexe);
         editRegBirthDate = findViewById(R.id.edit_reg_birthdate);
         editRegWeight = findViewById(R.id.edit_reg_weight);
         editRegHeight = findViewById(R.id.edit_reg_height);
+        editRegCity = findViewById(R.id.edit_reg_city);
+        editRegPostal = findViewById(R.id.edit_reg_postal);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -236,22 +244,23 @@ public class MainActivity extends AppCompatActivity {
             loginToApi(editEmail.getText().toString(), editPassword.getText().toString());
         });
         buttonRegister.setOnClickListener(view -> {
-            if (editName.getVisibility() == View.GONE) {
-                editName.setVisibility(View.VISIBLE);
+            if (registrationFields.getVisibility() == View.GONE) {
                 registrationFields.setVisibility(View.VISIBLE);
                 buttonLogin.setVisibility(View.GONE);
                 buttonRegister.setText("Valider l'inscription");
             } else {
-                String name = editName.getText().toString();
+                String lastName = editRegLastName.getText().toString();
+                String firstName = editRegFirstName.getText().toString();
                 String email = editEmail.getText().toString();
                 String pwd = editPassword.getText().toString();
-                String firstName = editRegFirstName.getText().toString();
                 String sexe = editRegSexe.getText().toString();
                 String birthDate = editRegBirthDate.getText().toString();
                 String weightStr = editRegWeight.getText().toString();
                 String heightStr = editRegHeight.getText().toString();
+                String city = editRegCity.getText().toString();
+                String postal = editRegPostal.getText().toString();
 
-                if (name.isEmpty() || email.isEmpty() || pwd.isEmpty() || firstName.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty()) {
+                if (lastName.isEmpty() || firstName.isEmpty() || email.isEmpty() || pwd.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || city.isEmpty() || postal.isEmpty()) {
                     Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -259,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
                 hideKeyboard();
                 buttonRegister.setEnabled(false);
                 Toast.makeText(this, "Inscription en cours...", Toast.LENGTH_SHORT).show();
-                registerToApi(name, firstName, email, pwd, sexe, birthDate, Float.parseFloat(weightStr), Float.parseFloat(heightStr));
+                registerToApi(lastName, firstName, email, pwd, sexe, birthDate, Float.parseFloat(weightStr), Float.parseFloat(heightStr), city, postal);
             }
         });
         buttonRefreshDevices.setOnClickListener(view -> {
@@ -283,12 +292,27 @@ public class MainActivity extends AppCompatActivity {
         int start = response.indexOf("{");
         int end = response.lastIndexOf("}");
         if (start != -1 && end != -1 && end >= start) {
-            return response.substring(start, end + 1);
+            try {
+                String potentialJson = response.substring(start, end + 1);
+                new JSONObject(potentialJson); // Test si c'est valide
+                return potentialJson;
+            } catch (Exception e) {
+                // If the first '{' and last '}' don't make a valid JSON, try to find the last valid JSON block
+                // Often PHP errors are at the start, and JSON is at the end.
+                try {
+                    int lastStart = response.lastIndexOf("{");
+                    if (lastStart != -1 && end != -1 && end >= lastStart) {
+                        return response.substring(lastStart, end + 1);
+                    }
+                } catch (Exception ex) {
+                    return "{}";
+                }
+            }
         }
         return "{}";
     }
 
-    private void registerToApi(String name, String firstName, String email, String password, String sexe, String birthDate, float weight, float height) {
+    private void registerToApi(String lastName, String firstName, String email, String password, String sexe, String birthDate, float weight, float height, String city, String postal) {
         new Thread(() -> {
             HttpURLConnection conn = null;
             try {
@@ -302,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
 
                 JSONObject payload = new JSONObject();
                 payload.put("action", "register");
-                payload.put("nameUsers", name);
+                payload.put("lastName", lastName);
                 payload.put("firstName", firstName);
                 payload.put("email", email);
                 payload.put("passwordUser", password);
@@ -311,6 +335,8 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("birthDate", birthDate);
                 payload.put("weight", weight);
                 payload.put("height", height);
+                payload.put("city", city);
+                payload.put("postal", postal);
 
                 Log.d("SANTE_APP_API", "Register request payload: " + payload.toString());
 
@@ -341,8 +367,11 @@ public class MainActivity extends AppCompatActivity {
                         buttonRegister.setEnabled(true);
                         Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
                         if (success) {
-                            // Si l'inscription réussit, on peut éventuellement vider le champ nom pour se connecter ensuite
-                            editName.setText("");
+                            // Si l'inscription réussit, on peut éventuellement vider les champs pour se connecter ensuite
+                            editRegLastName.setText("");
+                            editRegFirstName.setText("");
+                            editRegCity.setText("");
+                            editRegPostal.setText("");
                         }
                     });
                 } else {
@@ -479,14 +508,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateProfile() {
-        String name = editProfileName.getText().toString();
+        String lastName = editProfileLastName.getText().toString();
         String firstName = editProfileFirstName.getText().toString();
         String sexe = editProfileSexe.getText().toString();
         String birthDate = editProfileBirthDate.getText().toString();
         String weightStr = editProfileWeight.getText().toString();
         String heightStr = editProfileHeight.getText().toString();
+        String city = editProfileCity.getText().toString();
+        String postal = editProfilePostal.getText().toString();
 
-        if (name.isEmpty() || firstName.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty()) {
+        if (lastName.isEmpty() || firstName.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || city.isEmpty() || postal.isEmpty()) {
             Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -508,12 +539,14 @@ public class MainActivity extends AppCompatActivity {
                 conn.setDoOutput(true);
 
                 JSONObject payload = new JSONObject();
-                payload.put("nameUsers", name);
+                payload.put("lastName", lastName);
                 payload.put("firstName", firstName);
                 payload.put("sexe", sexe);
                 payload.put("birthDate", birthDate);
                 payload.put("weight", Float.parseFloat(weightStr));
                 payload.put("height", Float.parseFloat(heightStr));
+                payload.put("city", city);
+                payload.put("postal", postal);
 
                 Log.d("SANTE_APP_API", "Update Profile request payload: " + payload.toString());
 
@@ -593,8 +626,9 @@ public class MainActivity extends AppCompatActivity {
 
                     runOnUiThread(() -> {
                         try {
-                            if (data.has("nameUsers")) editProfileName.setText(data.getString("nameUsers"));
-                            else if (data.has("name")) editProfileName.setText(data.getString("name"));
+                            if (data.has("lastName")) editProfileLastName.setText(data.getString("lastName"));
+                            else if (data.has("nameUsers")) editProfileLastName.setText(data.getString("nameUsers"));
+                            else if (data.has("name")) editProfileLastName.setText(data.getString("name"));
 
                             if (data.has("firstName")) editProfileFirstName.setText(data.getString("firstName"));
 
@@ -605,6 +639,9 @@ public class MainActivity extends AppCompatActivity {
                             if (data.has("birthDate")) editProfileBirthDate.setText(data.getString("birthDate"));
                             if (data.has("weight")) editProfileWeight.setText(String.valueOf(data.getDouble("weight")));
                             if (data.has("height")) editProfileHeight.setText(String.valueOf(data.getDouble("height")));
+
+                            if (data.has("city")) editProfileCity.setText(data.getString("city"));
+                            if (data.has("postal")) editProfilePostal.setText(data.getString("postal"));
                         } catch (org.json.JSONException e) {
                             Log.e("SANTE_APP_API", "Erreur parsing JSON profile: " + e.getMessage());
                         }
@@ -643,13 +680,15 @@ public class MainActivity extends AppCompatActivity {
         // Reset inputs
         editEmail.setText("");
         editPassword.setText("");
-        editName.setText("");
-        editName.setVisibility(View.GONE);
+        editRegLastName.setText("");
+        editRegFirstName.setText("");
         registrationFields.setVisibility(View.GONE);
         editRegSexe.setText("");
         editRegBirthDate.setText("");
         editRegWeight.setText("");
         editRegHeight.setText("");
+        editRegCity.setText("");
+        editRegPostal.setText("");
         buttonLogin.setVisibility(View.VISIBLE);
         buttonRegister.setText("Créer un compte");
     }
