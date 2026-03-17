@@ -14,14 +14,18 @@ public class MeasurementEntity {
     public Integer spo2;
     public Double temperature;
 
+    // Email of the user who took the measurement
+    public String userEmail;
+
     // Timestamp in milliseconds to easily sort and filter for the last 24h/week
     public long timestamp;
 
-    public MeasurementEntity(String deviceType, Integer bpm, Integer spo2, Double temperature, long timestamp) {
+    public MeasurementEntity(String deviceType, Integer bpm, Integer spo2, Double temperature, long timestamp, String userEmail) {
         this.deviceType = deviceType;
         this.bpm = bpm;
         this.spo2 = spo2;
         this.temperature = temperature;
         this.timestamp = timestamp;
+        this.userEmail = userEmail;
     }
 }
