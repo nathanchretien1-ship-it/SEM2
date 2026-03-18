@@ -20,6 +20,8 @@ public class MeasurementEntity {
     // Timestamp in milliseconds to easily sort and filter for the last 24h/week
     public long timestamp;
 
+    public boolean isSentToServer;
+
     public MeasurementEntity(String deviceType, Integer bpm, Integer spo2, Double temperature, long timestamp, String userEmail) {
         this.deviceType = deviceType;
         this.bpm = bpm;
@@ -27,5 +29,6 @@ public class MeasurementEntity {
         this.temperature = temperature;
         this.timestamp = timestamp;
         this.userEmail = userEmail;
+        this.isSentToServer = false; // default
     }
 }

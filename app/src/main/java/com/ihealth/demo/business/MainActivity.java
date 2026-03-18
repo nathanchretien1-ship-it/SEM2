@@ -9,6 +9,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.content.Context;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +32,7 @@ import com.ihealth.demo.R;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -123,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
 
     // Device Tracking
     private Map<String, String> deviceStates = new HashMap<>();
+    private static long lastPo3MeasurementTime = 0; // Made static to persist across callbacks
+    private View buttonLoadMoreHistory;
 
     // Discovery Handler
     private Handler discoveryHandler = new Handler(Looper.getMainLooper());
@@ -197,6 +203,9 @@ public class MainActivity extends AppCompatActivity {
         historyAdapter = new HistoryAdapter();
         recyclerHistory.setAdapter(historyAdapter);
         recyclerHistory.setLayoutManager(new LinearLayoutManager(this));
+
+        buttonLoadMoreHistory = findViewById(R.id.button_load_more_history);
+        buttonLoadMoreHistory.setOnClickListener(v -> loadHistoryFromServer());
 
         tvSpo2 = findViewById(R.id.tv_spo2);
         tvBpm = findViewById(R.id.tv_bpm);
@@ -553,10 +562,26 @@ public class MainActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        return false;
+    }
+
     private void showProfile() {
         hideAllLayouts();
         profileLayout.setVisibility(View.VISIBLE);
         bottomNavigationView.setVisibility(View.VISIBLE);
+
+        boolean isConnected = isNetworkAvailable();
+        buttonSaveProfile.setEnabled(isConnected);
+        if (!isConnected) {
+            Toast.makeText(this, "Pas de connexion : modification du profil désactivée", Toast.LENGTH_SHORT).show();
+        }
+
         fetchProfile();
     }
 
@@ -873,6 +898,15 @@ public class MainActivity extends AppCompatActivity {
         buttonProfile.setVisibility(View.VISIBLE);
         findViewById(R.id.img_app_logo).setVisibility(View.VISIBLE);
         stopDiscoveryLoop();
+
+        boolean isConnected = isNetworkAvailable();
+        buttonLoadMoreHistory.setEnabled(isConnected);
+        if (!isConnected) {
+            Toast.makeText(this, "Mode hors-ligne : données locales uniquement", Toast.LENGTH_SHORT).show();
+        } else {
+            syncUnsentMeasurements();
+        }
+
         loadHistoryFromDatabase();
     }
 
@@ -887,12 +921,158 @@ public class MainActivity extends AppCompatActivity {
         refreshDevicesList();
     }
 
+    private void syncUnsentMeasurements() {
+        databaseExecutor.execute(() -> {
+            String currentUserEmail = sessionManager.getEmail();
+            if (currentUserEmail == null || currentUserEmail.isEmpty() || apiToken == null) return;
+
+            List<MeasurementEntity> unsent = measurementDao.getUnsentMeasurements(currentUserEmail);
+            if (!unsent.isEmpty()) {
+                // Run in a single background thread sequentially to avoid spawning hundreds of threads
+                new Thread(() -> {
+                    for (MeasurementEntity entity : unsent) {
+                        sendSingleMeasurementSync(entity);
+                    }
+                }).start();
+            }
+        });
+    }
+
+    private void sendSingleMeasurementSync(MeasurementEntity entity) {
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(URL_MEASUREMENTS);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                conn.setRequestProperty("Authorization", "Bearer " + apiToken);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+                conn.setDoOutput(true);
+
+                JSONObject payload = new JSONObject();
+                payload.put("device_type", entity.deviceType);
+                if (entity.bpm != null) payload.put("bpm", entity.bpm);
+                if (entity.spo2 != null) payload.put("spo2", entity.spo2);
+                if (entity.temperature != null) payload.put("temperature", entity.temperature);
+
+                int idDoctor = sessionManager.getIdDoctor();
+                if (idDoctor != -1) {
+                    payload.put("idDoctor", idDoctor);
+                }
+
+                Date measureDate = new Date(entity.timestamp);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+
+                payload.put("measureDate", dateFormat.format(measureDate));
+                payload.put("measureTime", timeFormat.format(measureDate));
+
+                DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+                os.write(payload.toString().getBytes("UTF-8"));
+                os.flush();
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                if (responseCode >= 200 && responseCode < 300) {
+                    databaseExecutor.execute(() -> measurementDao.markAsSent(entity.id));
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Erreur sync offline : " + e.getMessage());
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+    }
+
     private void loadHistoryFromDatabase() {
         databaseExecutor.execute(() -> {
             String currentUserEmail = sessionManager.getEmail();
             List<MeasurementEntity> measurements = measurementDao.getAllMeasurements(currentUserEmail != null ? currentUserEmail : "");
             runOnUiThread(() -> historyAdapter.setMeasurements(measurements));
         });
+    }
+
+    private void loadHistoryFromServer() {
+        if (apiToken == null) {
+            Toast.makeText(this, "Non connecté", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Toast.makeText(this, "Chargement depuis le serveur...", Toast.LENGTH_SHORT).show();
+        new Thread(() -> {
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(URL_MEASUREMENTS);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Bearer " + apiToken);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+
+                int responseCode = conn.getResponseCode();
+                if (responseCode >= 200 && responseCode < 300) {
+                    InputStream in = conn.getInputStream();
+                    StringBuilder response = new StringBuilder();
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = in.read(buffer)) != -1) {
+                        response.append(new String(buffer, 0, bytesRead));
+                    }
+                    in.close();
+
+                    String jsonString = extractJson(response.toString());
+                    JSONArray jsonArray = new JSONArray(jsonString);
+
+                    databaseExecutor.execute(() -> {
+                        String currentUserEmail = sessionManager.getEmail();
+
+                        // Delete only those measurements that have ALREADY been sent to the server.
+                        // We preserve any unsent offline measurements so we don't lose data.
+                        measurementDao.deleteSentMeasurements(currentUserEmail);
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject obj = null;
+                            try {
+                                obj = jsonArray.getJSONObject(i);
+                                String type = obj.optString("device_type", obj.optString("deviceType", "Inconnu"));
+                                Integer bpm = obj.has("bpm") && !obj.isNull("bpm") ? obj.getInt("bpm") : null;
+                                Integer spo2 = obj.has("spo2") && !obj.isNull("spo2") ? obj.getInt("spo2") : null;
+                                Double temp = obj.has("temperature") && !obj.isNull("temperature") ? obj.getDouble("temperature") : null;
+
+                                long ts = System.currentTimeMillis() - (i * 1000L); // fallback timestamp
+                                try {
+                                    String dateStr = obj.optString("measureDate", "");
+                                    String timeStr = obj.optString("measureTime", "");
+                                    if (!dateStr.isEmpty() && !timeStr.isEmpty()) {
+                                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                                        Date date = sdf.parse(dateStr + " " + timeStr);
+                                        if (date != null) ts = date.getTime();
+                                    }
+                                } catch (Exception ignored) {}
+
+                                MeasurementEntity entity = new MeasurementEntity(type, bpm, spo2, temp, ts, currentUserEmail != null ? currentUserEmail : "");
+                                entity.isSentToServer = true;
+                                measurementDao.insert(entity);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        // Load and update UI after syncing DB
+                        runOnUiThread(this::loadHistoryFromDatabase);
+                    });
+
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Historique chargé avec succès", Toast.LENGTH_SHORT).show());
+                } else {
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Erreur réseau: " + responseCode, Toast.LENGTH_SHORT).show());
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Erreur chargement serveur : " + e.getMessage());
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Échec du chargement : " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
     }
 
     private void updateDeviceState(String mac, String name, String state) {
@@ -1016,7 +1196,19 @@ public class MainActivity extends AppCompatActivity {
                         int finalSpo2 = spo2;
                         int finalBpm = bpm;
                         String sendDeviceType = deviceType.equals("PO3") ? "oxymetre" : deviceType;
-                        MainActivity.this.envoyerAuServeur(sendDeviceType, finalBpm, finalSpo2, null);
+
+                        // We ONLY save/send to server if it's been at least 60 seconds.
+                        long currentTime = System.currentTimeMillis();
+                        if (currentTime - lastPo3MeasurementTime >= 60000) {
+                            lastPo3MeasurementTime = currentTime;
+                            Log.d(TAG, "60s elapsed, saving PO3 measurement: " + finalSpo2 + "% " + finalBpm + "bpm");
+                            MainActivity.this.envoyerAuServeur(sendDeviceType, finalBpm, finalSpo2, null);
+                        } else {
+                            // Optionally log that we're ignoring this for the server
+                            // Log.v(TAG, "Ignoring PO3 DB/Server save (throttled): " + (60000 - (currentTime - lastPo3MeasurementTime)) + "ms left");
+                        }
+
+                        // BUT we ALWAYS update the UI so the user sees real-time changes
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -1055,12 +1247,16 @@ public class MainActivity extends AppCompatActivity {
     void envoyerAuServeur(String deviceType, Integer bpm, Integer spo2, Double temperature) {
         long timestamp = System.currentTimeMillis();
         // Save to local database
+        final long[] insertedId = new long[1];
         databaseExecutor.execute(() -> {
             String currentUserEmail = sessionManager.getEmail();
             MeasurementEntity entity = new MeasurementEntity(deviceType, bpm, spo2, temperature, timestamp, currentUserEmail != null ? currentUserEmail : "");
-            measurementDao.insert(entity);
-            // Delete records older than 7 days (7 * 24 * 60 * 60 * 1000 ms = 604800000 ms)
-            measurementDao.deleteOlderThan(timestamp - 604800000L);
+            insertedId[0] = measurementDao.insert(entity);
+
+            // Don't delete older than 7 days automatically if we want to keep server history
+            // Users can load history, so we shouldn't wipe it out on every new measurement.
+            // If you want to clean up, maybe keep last 30 days or let the user manage it.
+            // measurementDao.deleteOlderThan(timestamp - 2592000000L); // 30 days
         });
 
         if (apiToken == null) {
@@ -1119,6 +1315,14 @@ public class MainActivity extends AppCompatActivity {
 
                     String jsonString = extractJson(response.toString());
                     Log.d("SANTE_APP_API", "Measurements response: " + jsonString);
+                    if (responseCode >= 200 && responseCode < 300) {
+                        // Mark as sent in DB
+                        databaseExecutor.execute(() -> {
+                            if (insertedId[0] > 0) {
+                                measurementDao.markAsSent((int) insertedId[0]);
+                            }
+                        });
+                    }
                 } else {
                     Log.d("SANTE_APP_API", "Measurements response code (no body): " + responseCode);
                 }

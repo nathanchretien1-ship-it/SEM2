@@ -10,7 +10,7 @@ import java.util.List;
 public interface MeasurementDao {
 
     @Insert
-    void insert(MeasurementEntity measurement);
+    long insert(MeasurementEntity measurement);
 
     // Fetch all measurements ordered by timestamp descending (newest first)
     @Query("SELECT * FROM measurements WHERE userEmail = :userEmail ORDER BY timestamp DESC")
@@ -20,7 +20,21 @@ public interface MeasurementDao {
     @Query("SELECT * FROM measurements WHERE userEmail = :userEmail AND timestamp >= :timestamp ORDER BY timestamp DESC")
     List<MeasurementEntity> getMeasurementsSince(String userEmail, long timestamp);
 
+    // Fetch unsent measurements
+    @Query("SELECT * FROM measurements WHERE userEmail = :userEmail AND isSentToServer = 0")
+    List<MeasurementEntity> getUnsentMeasurements(String userEmail);
+
+    // Update a measurement's sync status
+    @Query("UPDATE measurements SET isSentToServer = 1 WHERE id = :id")
+    void markAsSent(int id);
+
     // Delete older measurements (e.g., to clear history older than 7 days)
     @Query("DELETE FROM measurements WHERE timestamp < :timestamp")
     void deleteOlderThan(long timestamp);
+
+    @Query("DELETE FROM measurements WHERE userEmail = :userEmail AND isSentToServer = 1")
+    void deleteSentMeasurements(String userEmail);
+
+    @Query("DELETE FROM measurements WHERE userEmail = :userEmail")
+    void deleteAllMeasurements(String userEmail);
 }
