@@ -128,6 +128,9 @@ public class MainActivity extends AppCompatActivity {
     // Device Tracking
     private Map<String, String> deviceStates = new HashMap<>();
     private static long lastPo3MeasurementTime = 0; // Made static to persist across callbacks
+    private static long po3MeasurementSumBpm = 0;
+    private static long po3MeasurementSumSpo2 = 0;
+    private static int po3MeasurementCount = 0;
     private View buttonLoadMoreHistory;
 
     // Discovery Handler
@@ -1197,15 +1200,30 @@ public class MainActivity extends AppCompatActivity {
                         int finalBpm = bpm;
                         String sendDeviceType = deviceType.equals("PO3") ? "oxymetre" : deviceType;
 
-                        // We ONLY save/send to server if it's been at least 60 seconds.
                         long currentTime = System.currentTimeMillis();
-                        if (currentTime - lastPo3MeasurementTime >= 60000) {
+
+                        // Initialize the time window if this is the first measurement
+                        if (lastPo3MeasurementTime == 0) {
                             lastPo3MeasurementTime = currentTime;
-                            Log.d(TAG, "60s elapsed, saving PO3 measurement: " + finalSpo2 + "% " + finalBpm + "bpm");
-                            MainActivity.this.envoyerAuServeur(sendDeviceType, finalBpm, finalSpo2, null);
-                        } else {
-                            // Optionally log that we're ignoring this for the server
-                            // Log.v(TAG, "Ignoring PO3 DB/Server save (throttled): " + (60000 - (currentTime - lastPo3MeasurementTime)) + "ms left");
+                        }
+
+                        po3MeasurementSumBpm += finalBpm;
+                        po3MeasurementSumSpo2 += finalSpo2;
+                        po3MeasurementCount++;
+
+                        // We ONLY save/send to server if it's been at least 60 seconds.
+                        if (currentTime - lastPo3MeasurementTime >= 60000) {
+                            int avgBpm = (int) (po3MeasurementSumBpm / po3MeasurementCount);
+                            int avgSpo2 = (int) (po3MeasurementSumSpo2 / po3MeasurementCount);
+
+                            Log.d(TAG, "60s elapsed, saving PO3 measurement average: " + avgSpo2 + "% " + avgBpm + "bpm (from " + po3MeasurementCount + " measures)");
+                            MainActivity.this.envoyerAuServeur(sendDeviceType, avgBpm, avgSpo2, null);
+
+                            // Reset for the next window
+                            lastPo3MeasurementTime = currentTime;
+                            po3MeasurementSumBpm = 0;
+                            po3MeasurementSumSpo2 = 0;
+                            po3MeasurementCount = 0;
                         }
 
                         // BUT we ALWAYS update the UI so the user sees real-time changes
