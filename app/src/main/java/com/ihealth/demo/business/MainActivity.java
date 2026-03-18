@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Device Tracking
     private Map<String, String> deviceStates = new HashMap<>();
-    private long lastPo3MeasurementTime = 0;
+    private static long lastPo3MeasurementTime = 0; // Made static to persist across callbacks
     private View buttonLoadMoreHistory;
 
     // Discovery Handler
@@ -1197,12 +1197,18 @@ public class MainActivity extends AppCompatActivity {
                         int finalBpm = bpm;
                         String sendDeviceType = deviceType.equals("PO3") ? "oxymetre" : deviceType;
 
+                        // We ONLY save/send to server if it's been at least 60 seconds.
                         long currentTime = System.currentTimeMillis();
                         if (currentTime - lastPo3MeasurementTime >= 60000) {
                             lastPo3MeasurementTime = currentTime;
+                            Log.d(TAG, "60s elapsed, saving PO3 measurement: " + finalSpo2 + "% " + finalBpm + "bpm");
                             MainActivity.this.envoyerAuServeur(sendDeviceType, finalBpm, finalSpo2, null);
+                        } else {
+                            // Optionally log that we're ignoring this for the server
+                            // Log.v(TAG, "Ignoring PO3 DB/Server save (throttled): " + (60000 - (currentTime - lastPo3MeasurementTime)) + "ms left");
                         }
 
+                        // BUT we ALWAYS update the UI so the user sees real-time changes
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
