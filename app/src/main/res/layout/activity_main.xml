@@ -466,6 +466,15 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:clipToPadding="false" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_load_more_history"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="Charger plus depuis le serveur"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                app:cornerRadius="8dp" />
         </LinearLayout>
 
         <!-- ===================== PROFILE SECTION ===================== -->
