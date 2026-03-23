@@ -106,6 +106,19 @@
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edit_reg_street"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Rue"
+                            android:inputType="textPostalAddress" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edit_reg_lastname"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -695,6 +708,22 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Street Field -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_profile_street"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Rue"
+                        android:inputType="textPostalAddress" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <!-- City Field -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -773,17 +802,88 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
-
                     android:id="@+id/button_save_profile"
-
                     android:layout_width="match_parent"
-
                     android:layout_height="60dp"
-
-                    android:text="Mettre à jour"
-
+                    android:text="Mettre à jour les informations"
                     android:textSize="18sp"
+                    android:layout_marginBottom="32dp"
+                    app:cornerRadius="8dp" />
 
+                <!-- Security Section -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/darkGrey"
+                    android:layout_marginBottom="32dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sécurité"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/medicalBlue"
+                    android:layout_marginBottom="24dp" />
+
+                <!-- Old Password Field -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:passwordToggleEnabled="true"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_profile_old_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Ancien mot de passe"
+                        android:inputType="textPassword" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- New Password Field -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:passwordToggleEnabled="true"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_profile_new_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nouveau mot de passe"
+                        android:inputType="textPassword" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Confirm New Password Field -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="32dp"
+                    app:passwordToggleEnabled="true"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edit_profile_confirm_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Confirmer le nouveau mot de passe"
+                        android:inputType="textPassword" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_change_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="Modifier le mot de passe"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="32dp"
                     app:cornerRadius="8dp" />
 
             </LinearLayout>

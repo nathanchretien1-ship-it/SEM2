@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText editProfileBirthDate;
     private EditText editProfileWeight;
     private EditText editProfileHeight;
+    private EditText editProfileStreet;
     private EditText editProfileCity;
     private EditText editProfilePostal;
     private EditText editProfileCountry;
@@ -89,6 +90,12 @@ public class MainActivity extends AppCompatActivity {
     private EditText editProfileDoctorEmail;
     private Button buttonSaveProfile;
     private ImageView buttonBackProfile;
+
+    // Password Change Elements
+    private EditText editProfileOldPassword;
+    private EditText editProfileNewPassword;
+    private EditText editProfileConfirmPassword;
+    private Button buttonChangePassword;
 
     // Registration Elements
     private View registrationFields;
@@ -98,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText editRegBirthDate;
     private EditText editRegWeight;
     private EditText editRegHeight;
+    private EditText editRegStreet;
     private EditText editRegCity;
     private EditText editRegPostal;
     private EditText editRegCountry;
@@ -180,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
         editProfileBirthDate = findViewById(R.id.edit_profile_birthdate);
         editProfileWeight = findViewById(R.id.edit_profile_weight);
         editProfileHeight = findViewById(R.id.edit_profile_height);
+        editProfileStreet = findViewById(R.id.edit_profile_street);
         editProfileCity = findViewById(R.id.edit_profile_city);
         editProfilePostal = findViewById(R.id.edit_profile_postal);
         editProfileCountry = findViewById(R.id.edit_profile_country);
@@ -188,6 +197,11 @@ public class MainActivity extends AppCompatActivity {
         buttonSaveProfile = findViewById(R.id.button_save_profile);
         buttonBackProfile = findViewById(R.id.button_back_profile);
 
+        editProfileOldPassword = findViewById(R.id.edit_profile_old_password);
+        editProfileNewPassword = findViewById(R.id.edit_profile_new_password);
+        editProfileConfirmPassword = findViewById(R.id.edit_profile_confirm_password);
+        buttonChangePassword = findViewById(R.id.button_change_password);
+
         registrationFields = findViewById(R.id.registration_fields);
         editRegLastName = findViewById(R.id.edit_reg_lastname);
         editRegFirstName = findViewById(R.id.edit_reg_firstname);
@@ -195,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
         editRegBirthDate = findViewById(R.id.edit_reg_birthdate);
         editRegWeight = findViewById(R.id.edit_reg_weight);
         editRegHeight = findViewById(R.id.edit_reg_height);
+        editRegStreet = findViewById(R.id.edit_reg_street);
         editRegCity = findViewById(R.id.edit_reg_city);
         editRegPostal = findViewById(R.id.edit_reg_postal);
         editRegCountry = findViewById(R.id.edit_reg_country);
@@ -236,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
 
         buttonSaveProfile.setOnClickListener(v -> updateProfile());
         buttonBackProfile.setOnClickListener(v -> showMeasurements());
+        buttonChangePassword.setOnClickListener(v -> changePassword());
 
         // Setup DatePicker for profile birthdate
         editProfileBirthDate.setOnClickListener(v -> showDatePickerDialog(editProfileBirthDate));
@@ -300,13 +316,19 @@ public class MainActivity extends AppCompatActivity {
                 String birthDate = editRegBirthDate.getText().toString();
                 String weightStr = editRegWeight.getText().toString();
                 String heightStr = editRegHeight.getText().toString();
+                String street = editRegStreet.getText().toString();
                 String city = editRegCity.getText().toString();
                 String postal = editRegPostal.getText().toString();
                 String country = editRegCountry.getText().toString();
                 String doctorName = editRegDoctor.getText().toString();
 
-                if (lastName.isEmpty() || firstName.isEmpty() || email.isEmpty() || pwd.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || city.isEmpty() || postal.isEmpty() || country.isEmpty()) {
+                if (lastName.isEmpty() || firstName.isEmpty() || email.isEmpty() || pwd.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || street.isEmpty() || city.isEmpty() || postal.isEmpty() || country.isEmpty()) {
                     Toast.makeText(this, "Veuillez remplir tous les champs (sauf le médecin si vous n'en avez pas)", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (!isValidPassword(pwd)) {
+                    Toast.makeText(this, "Le mot de passe doit contenir 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.", Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -318,13 +340,22 @@ public class MainActivity extends AppCompatActivity {
                 hideKeyboard();
                 buttonRegister.setEnabled(false);
                 Toast.makeText(this, "Inscription en cours...", Toast.LENGTH_SHORT).show();
-                registerToApi(lastName, firstName, email, pwd, sexe, birthDate, Float.parseFloat(weightStr), Float.parseFloat(heightStr), city, postal, country, idDoctor);
+                registerToApi(lastName, firstName, email, pwd, sexe, birthDate, Float.parseFloat(weightStr), Float.parseFloat(heightStr), street, city, postal, country, idDoctor);
             }
         });
         buttonRefreshDevices.setOnClickListener(view -> {
             Toast.makeText(this, "Actualisation de la connexion...", Toast.LENGTH_SHORT).show();
             startAppLogic();
         });
+    }
+
+    private boolean isValidPassword(String password) {
+        if (password == null || password.length() < 8) return false;
+        boolean hasUppercase = !password.equals(password.toLowerCase());
+        boolean hasLowercase = !password.equals(password.toUpperCase());
+        boolean hasDigit = password.matches(".*\\d.*");
+        boolean hasSpecial = !password.matches("[A-Za-z0-9 ]*");
+        return hasUppercase && hasLowercase && hasDigit && hasSpecial;
     }
 
     private void hideKeyboard() {
@@ -362,7 +393,7 @@ public class MainActivity extends AppCompatActivity {
         return "{}";
     }
 
-    private void registerToApi(String lastName, String firstName, String email, String password, String sexe, String birthDate, float weight, float height, String city, String postal, String country, Integer idDoctor) {
+    private void registerToApi(String lastName, String firstName, String email, String password, String sexe, String birthDate, float weight, float height, String street, String city, String postal, String country, Integer idDoctor) {
         new Thread(() -> {
             HttpURLConnection conn = null;
             try {
@@ -385,6 +416,7 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("birthDate", birthDate);
                 payload.put("weight", weight);
                 payload.put("height", height);
+                payload.put("street", street);
                 payload.put("city", city);
                 payload.put("postal", postal);
                 payload.put("country", country);
@@ -424,6 +456,7 @@ public class MainActivity extends AppCompatActivity {
                             // Vider les champs pour se connecter ensuite et rediriger vers la vue de connexion
                             editRegLastName.setText("");
                             editRegFirstName.setText("");
+                            editRegStreet.setText("");
                             editRegCity.setText("");
                             editRegPostal.setText("");
                             editRegCountry.setText("");
@@ -588,6 +621,93 @@ public class MainActivity extends AppCompatActivity {
         fetchProfile();
     }
 
+    private void changePassword() {
+        String oldPassword = editProfileOldPassword.getText().toString();
+        String newPassword = editProfileNewPassword.getText().toString();
+        String confirmPassword = editProfileConfirmPassword.getText().toString();
+
+        if (oldPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
+            Toast.makeText(this, "Veuillez remplir tous les champs de mot de passe", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            Toast.makeText(this, "Les nouveaux mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!isValidPassword(newPassword)) {
+            Toast.makeText(this, "Le mot de passe doit contenir 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        hideKeyboard();
+        buttonChangePassword.setEnabled(false);
+        Toast.makeText(this, "Mise à jour du mot de passe...", Toast.LENGTH_SHORT).show();
+
+        new Thread(() -> {
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(URL_AUTH);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("PUT");
+                conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                conn.setRequestProperty("Authorization", "Bearer " + apiToken);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+                conn.setDoOutput(true);
+
+                JSONObject payload = new JSONObject();
+                payload.put("action", "change_password");
+                payload.put("email", sessionManager.getEmail());
+                payload.put("oldPassword", oldPassword);
+                payload.put("newPassword", newPassword);
+
+                java.io.OutputStream os = conn.getOutputStream();
+                os.write(payload.toString().getBytes("UTF-8"));
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                java.io.InputStream in = (responseCode >= 200 && responseCode < 300) ? conn.getInputStream() : conn.getErrorStream();
+                if (in == null) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Erreur réseau", Toast.LENGTH_SHORT).show();
+                        buttonChangePassword.setEnabled(true);
+                    });
+                    return;
+                }
+
+                java.util.Scanner scanner = new java.util.Scanner(in).useDelimiter("\\A");
+                String responseBody = scanner.hasNext() ? scanner.next() : "";
+                scanner.close();
+
+                String jsonString = extractJson(responseBody);
+                JSONObject jsonResponse = new JSONObject(jsonString);
+                boolean success = jsonResponse.optBoolean("success", false);
+                String message = jsonResponse.optString("message", "Réponse inattendue");
+
+                runOnUiThread(() -> {
+                    buttonChangePassword.setEnabled(true);
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                    if (success) {
+                        editProfileOldPassword.setText("");
+                        editProfileNewPassword.setText("");
+                        editProfileConfirmPassword.setText("");
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Erreur de connexion", Toast.LENGTH_SHORT).show();
+                    buttonChangePassword.setEnabled(true);
+                });
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
+    }
+
     private void updateProfile() {
         String lastName = editProfileLastName.getText().toString();
         String firstName = editProfileFirstName.getText().toString();
@@ -595,12 +715,13 @@ public class MainActivity extends AppCompatActivity {
         String birthDate = editProfileBirthDate.getText().toString();
         String weightStr = editProfileWeight.getText().toString();
         String heightStr = editProfileHeight.getText().toString();
+        String street = editProfileStreet.getText().toString();
         String city = editProfileCity.getText().toString();
         String postal = editProfilePostal.getText().toString();
         String country = editProfileCountry.getText().toString();
         String doctorName = editProfileDoctor.getText().toString();
 
-        if (lastName.isEmpty() || firstName.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || city.isEmpty() || postal.isEmpty() || country.isEmpty()) {
+        if (lastName.isEmpty() || firstName.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || street.isEmpty() || city.isEmpty() || postal.isEmpty() || country.isEmpty()) {
             Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -634,6 +755,7 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("birthDate", birthDate);
                 payload.put("weight", Float.parseFloat(weightStr));
                 payload.put("height", Float.parseFloat(heightStr));
+                payload.put("street", street);
                 payload.put("city", city);
                 payload.put("postal", postal);
                 payload.put("country", country);
@@ -736,6 +858,7 @@ public class MainActivity extends AppCompatActivity {
                             if (data.has("weight")) editProfileWeight.setText(String.valueOf(data.getDouble("weight")));
                             if (data.has("height")) editProfileHeight.setText(String.valueOf(data.getDouble("height")));
 
+                            if (data.has("street")) editProfileStreet.setText(data.getString("street"));
                             if (data.has("city")) editProfileCity.setText(data.getString("city"));
                             if (data.has("postal")) editProfilePostal.setText(data.getString("postal"));
                             if (data.has("country")) editProfileCountry.setText(data.getString("country"));
@@ -860,6 +983,7 @@ public class MainActivity extends AppCompatActivity {
         editRegBirthDate.setText("");
         editRegWeight.setText("");
         editRegHeight.setText("");
+        editRegStreet.setText("");
         editRegCity.setText("");
         editRegPostal.setText("");
         editRegCountry.setText("");
