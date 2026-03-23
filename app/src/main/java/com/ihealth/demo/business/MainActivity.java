@@ -90,6 +90,12 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonSaveProfile;
     private ImageView buttonBackProfile;
 
+    // Password Change Elements
+    private EditText editProfileOldPassword;
+    private EditText editProfileNewPassword;
+    private EditText editProfileConfirmPassword;
+    private Button buttonChangePassword;
+
     // Registration Elements
     private View registrationFields;
     private EditText editRegLastName;
@@ -188,6 +194,11 @@ public class MainActivity extends AppCompatActivity {
         buttonSaveProfile = findViewById(R.id.button_save_profile);
         buttonBackProfile = findViewById(R.id.button_back_profile);
 
+        editProfileOldPassword = findViewById(R.id.edit_profile_old_password);
+        editProfileNewPassword = findViewById(R.id.edit_profile_new_password);
+        editProfileConfirmPassword = findViewById(R.id.edit_profile_confirm_password);
+        buttonChangePassword = findViewById(R.id.button_change_password);
+
         registrationFields = findViewById(R.id.registration_fields);
         editRegLastName = findViewById(R.id.edit_reg_lastname);
         editRegFirstName = findViewById(R.id.edit_reg_firstname);
@@ -236,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
 
         buttonSaveProfile.setOnClickListener(v -> updateProfile());
         buttonBackProfile.setOnClickListener(v -> showMeasurements());
+        buttonChangePassword.setOnClickListener(v -> changePassword());
 
         // Setup DatePicker for profile birthdate
         editProfileBirthDate.setOnClickListener(v -> showDatePickerDialog(editProfileBirthDate));
@@ -310,6 +322,11 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
+                if (!isValidPassword(pwd)) {
+                    Toast.makeText(this, "Le mot de passe doit contenir 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 Integer idDoctor = null;
                 if (!doctorName.isEmpty() && doctorsMap.containsKey(doctorName)) {
                     idDoctor = doctorsMap.get(doctorName);
@@ -325,6 +342,15 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Actualisation de la connexion...", Toast.LENGTH_SHORT).show();
             startAppLogic();
         });
+    }
+
+    private boolean isValidPassword(String password) {
+        if (password == null || password.length() < 8) return false;
+        boolean hasUppercase = !password.equals(password.toLowerCase());
+        boolean hasLowercase = !password.equals(password.toUpperCase());
+        boolean hasDigit = password.matches(".*\\d.*");
+        boolean hasSpecial = !password.matches("[A-Za-z0-9 ]*");
+        return hasUppercase && hasLowercase && hasDigit && hasSpecial;
     }
 
     private void hideKeyboard() {
@@ -586,6 +612,93 @@ public class MainActivity extends AppCompatActivity {
         }
 
         fetchProfile();
+    }
+
+    private void changePassword() {
+        String oldPassword = editProfileOldPassword.getText().toString();
+        String newPassword = editProfileNewPassword.getText().toString();
+        String confirmPassword = editProfileConfirmPassword.getText().toString();
+
+        if (oldPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
+            Toast.makeText(this, "Veuillez remplir tous les champs de mot de passe", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            Toast.makeText(this, "Les nouveaux mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!isValidPassword(newPassword)) {
+            Toast.makeText(this, "Le mot de passe doit contenir 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        hideKeyboard();
+        buttonChangePassword.setEnabled(false);
+        Toast.makeText(this, "Mise à jour du mot de passe...", Toast.LENGTH_SHORT).show();
+
+        new Thread(() -> {
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(URL_AUTH);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("PUT");
+                conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                conn.setRequestProperty("Authorization", "Bearer " + apiToken);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+                conn.setDoOutput(true);
+
+                JSONObject payload = new JSONObject();
+                payload.put("action", "change_password");
+                payload.put("email", sessionManager.getEmail());
+                payload.put("oldPassword", oldPassword);
+                payload.put("newPassword", newPassword);
+
+                java.io.OutputStream os = conn.getOutputStream();
+                os.write(payload.toString().getBytes("UTF-8"));
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                java.io.InputStream in = (responseCode >= 200 && responseCode < 300) ? conn.getInputStream() : conn.getErrorStream();
+                if (in == null) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, "Erreur réseau", Toast.LENGTH_SHORT).show();
+                        buttonChangePassword.setEnabled(true);
+                    });
+                    return;
+                }
+
+                java.util.Scanner scanner = new java.util.Scanner(in).useDelimiter("\\A");
+                String responseBody = scanner.hasNext() ? scanner.next() : "";
+                scanner.close();
+
+                String jsonString = extractJson(responseBody);
+                JSONObject jsonResponse = new JSONObject(jsonString);
+                boolean success = jsonResponse.optBoolean("success", false);
+                String message = jsonResponse.optString("message", "Réponse inattendue");
+
+                runOnUiThread(() -> {
+                    buttonChangePassword.setEnabled(true);
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                    if (success) {
+                        editProfileOldPassword.setText("");
+                        editProfileNewPassword.setText("");
+                        editProfileConfirmPassword.setText("");
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Erreur de connexion", Toast.LENGTH_SHORT).show();
+                    buttonChangePassword.setEnabled(true);
+                });
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
     }
 
     private void updateProfile() {
