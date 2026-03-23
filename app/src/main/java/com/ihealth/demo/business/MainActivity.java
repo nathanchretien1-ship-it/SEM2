@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText editProfileBirthDate;
     private EditText editProfileWeight;
     private EditText editProfileHeight;
+    private EditText editProfileStreet;
     private EditText editProfileCity;
     private EditText editProfilePostal;
     private EditText editProfileCountry;
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText editRegBirthDate;
     private EditText editRegWeight;
     private EditText editRegHeight;
+    private EditText editRegStreet;
     private EditText editRegCity;
     private EditText editRegPostal;
     private EditText editRegCountry;
@@ -186,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
         editProfileBirthDate = findViewById(R.id.edit_profile_birthdate);
         editProfileWeight = findViewById(R.id.edit_profile_weight);
         editProfileHeight = findViewById(R.id.edit_profile_height);
+        editProfileStreet = findViewById(R.id.edit_profile_street);
         editProfileCity = findViewById(R.id.edit_profile_city);
         editProfilePostal = findViewById(R.id.edit_profile_postal);
         editProfileCountry = findViewById(R.id.edit_profile_country);
@@ -206,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
         editRegBirthDate = findViewById(R.id.edit_reg_birthdate);
         editRegWeight = findViewById(R.id.edit_reg_weight);
         editRegHeight = findViewById(R.id.edit_reg_height);
+        editRegStreet = findViewById(R.id.edit_reg_street);
         editRegCity = findViewById(R.id.edit_reg_city);
         editRegPostal = findViewById(R.id.edit_reg_postal);
         editRegCountry = findViewById(R.id.edit_reg_country);
@@ -312,12 +316,13 @@ public class MainActivity extends AppCompatActivity {
                 String birthDate = editRegBirthDate.getText().toString();
                 String weightStr = editRegWeight.getText().toString();
                 String heightStr = editRegHeight.getText().toString();
+                String street = editRegStreet.getText().toString();
                 String city = editRegCity.getText().toString();
                 String postal = editRegPostal.getText().toString();
                 String country = editRegCountry.getText().toString();
                 String doctorName = editRegDoctor.getText().toString();
 
-                if (lastName.isEmpty() || firstName.isEmpty() || email.isEmpty() || pwd.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || city.isEmpty() || postal.isEmpty() || country.isEmpty()) {
+                if (lastName.isEmpty() || firstName.isEmpty() || email.isEmpty() || pwd.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || street.isEmpty() || city.isEmpty() || postal.isEmpty() || country.isEmpty()) {
                     Toast.makeText(this, "Veuillez remplir tous les champs (sauf le médecin si vous n'en avez pas)", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -335,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
                 hideKeyboard();
                 buttonRegister.setEnabled(false);
                 Toast.makeText(this, "Inscription en cours...", Toast.LENGTH_SHORT).show();
-                registerToApi(lastName, firstName, email, pwd, sexe, birthDate, Float.parseFloat(weightStr), Float.parseFloat(heightStr), city, postal, country, idDoctor);
+                registerToApi(lastName, firstName, email, pwd, sexe, birthDate, Float.parseFloat(weightStr), Float.parseFloat(heightStr), street, city, postal, country, idDoctor);
             }
         });
         buttonRefreshDevices.setOnClickListener(view -> {
@@ -388,7 +393,7 @@ public class MainActivity extends AppCompatActivity {
         return "{}";
     }
 
-    private void registerToApi(String lastName, String firstName, String email, String password, String sexe, String birthDate, float weight, float height, String city, String postal, String country, Integer idDoctor) {
+    private void registerToApi(String lastName, String firstName, String email, String password, String sexe, String birthDate, float weight, float height, String street, String city, String postal, String country, Integer idDoctor) {
         new Thread(() -> {
             HttpURLConnection conn = null;
             try {
@@ -411,6 +416,7 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("birthDate", birthDate);
                 payload.put("weight", weight);
                 payload.put("height", height);
+                payload.put("street", street);
                 payload.put("city", city);
                 payload.put("postal", postal);
                 payload.put("country", country);
@@ -450,6 +456,7 @@ public class MainActivity extends AppCompatActivity {
                             // Vider les champs pour se connecter ensuite et rediriger vers la vue de connexion
                             editRegLastName.setText("");
                             editRegFirstName.setText("");
+                            editRegStreet.setText("");
                             editRegCity.setText("");
                             editRegPostal.setText("");
                             editRegCountry.setText("");
@@ -708,12 +715,13 @@ public class MainActivity extends AppCompatActivity {
         String birthDate = editProfileBirthDate.getText().toString();
         String weightStr = editProfileWeight.getText().toString();
         String heightStr = editProfileHeight.getText().toString();
+        String street = editProfileStreet.getText().toString();
         String city = editProfileCity.getText().toString();
         String postal = editProfilePostal.getText().toString();
         String country = editProfileCountry.getText().toString();
         String doctorName = editProfileDoctor.getText().toString();
 
-        if (lastName.isEmpty() || firstName.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || city.isEmpty() || postal.isEmpty() || country.isEmpty()) {
+        if (lastName.isEmpty() || firstName.isEmpty() || sexe.isEmpty() || birthDate.isEmpty() || weightStr.isEmpty() || heightStr.isEmpty() || street.isEmpty() || city.isEmpty() || postal.isEmpty() || country.isEmpty()) {
             Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -747,6 +755,7 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("birthDate", birthDate);
                 payload.put("weight", Float.parseFloat(weightStr));
                 payload.put("height", Float.parseFloat(heightStr));
+                payload.put("street", street);
                 payload.put("city", city);
                 payload.put("postal", postal);
                 payload.put("country", country);
@@ -849,6 +858,7 @@ public class MainActivity extends AppCompatActivity {
                             if (data.has("weight")) editProfileWeight.setText(String.valueOf(data.getDouble("weight")));
                             if (data.has("height")) editProfileHeight.setText(String.valueOf(data.getDouble("height")));
 
+                            if (data.has("street")) editProfileStreet.setText(data.getString("street"));
                             if (data.has("city")) editProfileCity.setText(data.getString("city"));
                             if (data.has("postal")) editProfilePostal.setText(data.getString("postal"));
                             if (data.has("country")) editProfileCountry.setText(data.getString("country"));
@@ -973,6 +983,7 @@ public class MainActivity extends AppCompatActivity {
         editRegBirthDate.setText("");
         editRegWeight.setText("");
         editRegHeight.setText("");
+        editRegStreet.setText("");
         editRegCity.setText("");
         editRegPostal.setText("");
         editRegCountry.setText("");
