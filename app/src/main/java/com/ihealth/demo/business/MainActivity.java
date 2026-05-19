@@ -904,15 +904,22 @@ public class MainActivity extends AppCompatActivity {
                 conn.setConnectTimeout(10000);
                 conn.setReadTimeout(10000);
 
+                Log.d("SANTE_APP_API", "Fetch doctors request: GET " + URL_DOCTORS);
+
                 int responseCode = conn.getResponseCode();
                 java.io.InputStream in = (responseCode >= 200 && responseCode < 300) ? conn.getInputStream() : conn.getErrorStream();
-                if (in == null) return;
+                if (in == null) {
+                    Log.e(TAG, "Fetch doctors: réponse vide (HTTP " + responseCode + ")");
+                    return;
+                }
 
                 java.util.Scanner scanner = new java.util.Scanner(in).useDelimiter("\\A");
                 String responseBody = scanner.hasNext() ? scanner.next() : "";
                 scanner.close();
 
                 String jsonBody = extractJson(responseBody);
+                Log.d("SANTE_APP_API", "Fetch doctors response (HTTP " + responseCode + "): " + jsonBody);
+
                 if (responseCode >= 200 && responseCode < 300 && !jsonBody.equals("{}")) {
                     JSONObject jsonObject = new JSONObject(jsonBody);
                     if (jsonObject.optBoolean("success", false) && jsonObject.has("data")) {
@@ -928,16 +935,22 @@ public class MainActivity extends AppCompatActivity {
                             doctorNamesList.add(displayName);
                         }
 
+                        Log.d("SANTE_APP_API", "Fetch doctors: " + doctorNamesList.size() + " médecin(s) chargé(s)");
+
                         runOnUiThread(() -> {
                             android.widget.ArrayAdapter<String> doctorAdapter = new android.widget.ArrayAdapter<>(
                                     MainActivity.this, android.R.layout.simple_dropdown_item_1line, doctorNamesList);
                             editRegDoctor.setAdapter(doctorAdapter);
                             editProfileDoctor.setAdapter(doctorAdapter);
                         });
+                    } else {
+                        Log.e(TAG, "Fetch doctors: réponse sans données exploitables");
                     }
+                } else {
+                    Log.e(TAG, "Fetch doctors: échec HTTP " + responseCode);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "Erreur lors de la récupération des médecins", e);
             } finally {
                 if (conn != null) conn.disconnect();
             }
