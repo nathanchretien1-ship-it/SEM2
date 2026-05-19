@@ -370,20 +370,41 @@ public class MainActivity extends AppCompatActivity {
 
     private String extractJson(String response) {
         if (response == null) return "{}";
-        int start = response.indexOf("{");
-        int end = response.lastIndexOf("}");
-        if (start != -1 && end != -1 && end >= start) {
+        int objStart = response.indexOf("{");
+        int objEnd = response.lastIndexOf("}");
+        int arrStart = response.indexOf("[");
+        int arrEnd = response.lastIndexOf("]");
+
+        // Check if it's a JSON array (like measurement history)
+        if (arrStart != -1 && arrEnd != -1 && arrEnd > arrStart &&
+            (objStart == -1 || arrStart < objStart)) {
             try {
-                String potentialJson = response.substring(start, end + 1);
+                String potentialJson = response.substring(arrStart, arrEnd + 1);
+                new JSONArray(potentialJson); // Test si c'est valide
+                return potentialJson;
+            } catch (Exception e) {
+                try {
+                    int lastArrStart = response.lastIndexOf("[");
+                    if (lastArrStart != -1 && arrEnd != -1 && arrEnd >= lastArrStart) {
+                        return response.substring(lastArrStart, arrEnd + 1);
+                    }
+                } catch (Exception ex) {
+                    // fallthrough
+                }
+            }
+        }
+
+        // Otherwise try JSON object
+        if (objStart != -1 && objEnd != -1 && objEnd >= objStart) {
+            try {
+                String potentialJson = response.substring(objStart, objEnd + 1);
                 new JSONObject(potentialJson); // Test si c'est valide
                 return potentialJson;
             } catch (Exception e) {
-                // If the first '{' and last '}' don't make a valid JSON, try to find the last valid JSON block
-                // Often PHP errors are at the start, and JSON is at the end.
                 try {
                     int lastStart = response.lastIndexOf("{");
-                    if (lastStart != -1 && end != -1 && end >= lastStart) {
-                        return response.substring(lastStart, end + 1);
+                    if (lastStart != -1 && objEnd != -1 && objEnd >= lastStart) {
+                        return response.substring(lastStart, objEnd + 1);
                     }
                 } catch (Exception ex) {
                     return "{}";
@@ -1148,8 +1169,19 @@ public class MainActivity extends AppCompatActivity {
                     in.close();
 
                     String jsonString = extractJson(response.toString());
-                    JSONArray jsonArray = new JSONArray(jsonString);
 
+                    // The API response for history is {"success":true,"data":[...]}
+                    JSONArray jsonArray = new JSONArray();
+                    if (jsonString.startsWith("[")) {
+                        jsonArray = new JSONArray(jsonString);
+                    } else {
+                        JSONObject jsonResponseObj = new JSONObject(jsonString);
+                        if (jsonResponseObj.has("data")) {
+                            jsonArray = jsonResponseObj.getJSONArray("data");
+                        }
+                    }
+
+                    JSONArray finalJsonArray = jsonArray;
                     databaseExecutor.execute(() -> {
                         String currentUserEmail = sessionManager.getEmail();
 
@@ -1157,10 +1189,10 @@ public class MainActivity extends AppCompatActivity {
                         // We preserve any unsent offline measurements so we don't lose data.
                         measurementDao.deleteSentMeasurements(currentUserEmail);
 
-                        for (int i = 0; i < jsonArray.length(); i++) {
+                        for (int i = 0; i < finalJsonArray.length(); i++) {
                             JSONObject obj = null;
                             try {
-                                obj = jsonArray.getJSONObject(i);
+                                obj = finalJsonArray.getJSONObject(i);
                                 String type = obj.optString("device_type", obj.optString("deviceType", "Inconnu"));
                                 Integer bpm = obj.has("bpm") && !obj.isNull("bpm") ? obj.getInt("bpm") : null;
                                 Integer spo2 = obj.has("spo2") && !obj.isNull("spo2") ? obj.getInt("spo2") : null;
