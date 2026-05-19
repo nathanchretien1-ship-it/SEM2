@@ -409,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
                 payload.put("action", "register");
                 payload.put("lastName", lastName);
                 payload.put("firstName", firstName);
-                payload.put("email", email);
+                payload.put("emailUser", email);
                 payload.put("passwordUser", password);
 
                 payload.put("sexe", sexe);
@@ -505,7 +505,7 @@ public class MainActivity extends AppCompatActivity {
 
                 JSONObject payload = new JSONObject();
                 payload.put("action", "login");
-                payload.put("email", email);
+                payload.put("emailUser", email);
                 payload.put("passwordUser", password);
 
                 Log.d("SANTE_APP_API", "Login request payload: " + payload.toString());
@@ -659,7 +659,7 @@ public class MainActivity extends AppCompatActivity {
 
                 JSONObject payload = new JSONObject();
                 payload.put("action", "change_password");
-                payload.put("email", sessionManager.getEmail());
+                payload.put("emailUser", sessionManager.getEmail());
                 payload.put("oldPassword", oldPassword);
                 payload.put("newPassword", newPassword);
 
